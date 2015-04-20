@@ -4,18 +4,22 @@ public class SketchGrid {
   int numRows;
   int numCols;
   
-  float sketchWidth;
-  float sketchHeight;
+  int sketchWidth;
+  int sketchHeight;
   
   Griddable[][] sketches;
   PGraphics[][] canvases;
   
   public SketchGrid(Object parentSketch, Griddable sketch) {
-    numRows = 2;
-    numCols = 2;
+    this(parentSketch, sketch, 2, 2, 100, 100);
+  }
+  
+  public SketchGrid(Object parentSketch, Griddable sketch, int numRows, int numCols, int sketchWidth, int sketchHeight) {
+    this.numRows = numRows;
+    this.numCols = numCols;
     
-    sketchWidth = 100;
-    sketchHeight = 100;
+    this.sketchWidth = sketchWidth;
+    this.sketchHeight = sketchHeight;
     
     Class sketchClass = sketch.getClass();
     println(sketchClass);
@@ -29,7 +33,7 @@ public class SketchGrid {
         } catch (Exception e) { 
           println(e);  
         }
-        canvases[i][j] = createGraphics(100, 100);
+        canvases[i][j] = createGraphics(sketchWidth, sketchHeight);
       }
     }
   }
@@ -38,7 +42,7 @@ public class SketchGrid {
     for (int i = 0; i < numRows; i++) {
       for (int j = 0; j < numCols; j++) {
         sketches[i][j].draw(canvases[i][j]);
-        image(canvases[i][j], i*100, j*100);
+        image(canvases[i][j], j*sketchWidth, i*sketchHeight);
       }
     }
   }
