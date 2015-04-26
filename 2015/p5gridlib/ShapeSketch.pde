@@ -11,11 +11,11 @@ public class ShapeSketch implements Griddable {
   
   public void draw(PGraphics context) {
     context.beginDraw();
-    context.background(255);
     context.stroke(225);
-    context.noFill();
-    //context.rect(0, 0, context.width, context.height);
+    context.fill(255, 75);
+    context.rect(0, 0, context.width, context.height);
     context.stroke(25);
+    context.fill(255, 255);
     context.ellipse(context.width/2+orbitRadius*cos(radians(frameCount*frequency)), 
       context.height/2+orbitRadius*sin(radians(frameCount*frequency)), ellipseRadius, ellipseRadius);
     context.endDraw();
