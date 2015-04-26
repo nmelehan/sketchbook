@@ -1,5 +1,17 @@
 import java.lang.reflect.*;
 
+private class WatchedParameter {
+  String parameterName;
+  float minValue;
+  float maxValue;
+  
+  public WatchedParameter(String parameterName, float minValue, float maxValue) {
+    this.parameterName = parameterName;
+    this.minValue = minValue;
+    this.maxValue = maxValue;
+  }
+}
+
 public class SketchGrid {
   int numRows;
   int numCols;
@@ -9,6 +21,7 @@ public class SketchGrid {
   
   Griddable[][] sketches;
   PGraphics[][] canvases;
+  ArrayList<WatchedParameter> watchedParameters;
   
   public SketchGrid(Object parentSketch, Griddable sketch) {
     this(parentSketch, sketch, 2, 2, 100, 100);
@@ -20,11 +33,12 @@ public class SketchGrid {
     
     this.sketchWidth = sketchWidth;
     this.sketchHeight = sketchHeight;
-    
-    Class sketchClass = sketch.getClass();
-    println(sketchClass);
+   
     sketches = new Griddable[numRows][numCols];
     canvases = new PGraphics[numRows][numCols];
+    watchedParameters = new ArrayList<WatchedParameter>();
+    
+    Class sketchClass = sketch.getClass();
     for (int i = 0; i < numRows; i++) {
       for (int j = 0; j < numCols; j++) {
         try {
@@ -36,8 +50,6 @@ public class SketchGrid {
         canvases[i][j] = createGraphics(sketchWidth, sketchHeight);
       }
     }
-    
-    distributeValuesForParameter(1, 6, "frequency");
   }
   
   private void distributeValuesForParameter(float minValue, float maxValue, String parameterName) {
@@ -50,6 +62,12 @@ public class SketchGrid {
         value = lerp(minValue, maxValue, (i*numCols+j)/numSketches);
       }
     }
+  }
+  
+  public void watchParameter(String parameterName, float minValue, float maxValue) {
+    watchedParameters.add(new WatchedParameter(parameterName, minValue, maxValue));
+    
+    distributeValuesForParameter(minValue, maxValue, parameterName);
   }
   
   private boolean set(Object object, String fieldName, Object fieldValue) {

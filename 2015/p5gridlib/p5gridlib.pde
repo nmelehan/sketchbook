@@ -9,6 +9,7 @@ int sketchHeight = 50;
 void setup() {
   size(numCols*sketchWidth, numRows*sketchHeight);
   grid = new SketchGrid(this, new ShapeSketch(), numRows, numCols, sketchWidth, sketchHeight);
+  grid.watchParameter("frequency", 1, 2);
 }
 
 void draw() {
