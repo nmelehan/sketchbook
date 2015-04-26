@@ -9,7 +9,9 @@ int sketchHeight = 50;
 void setup() {
   size(numCols*sketchWidth, numRows*sketchHeight);
   grid = new SketchGrid(this, new ShapeSketch(), numRows, numCols, sketchWidth, sketchHeight);
-  grid.watchParameter("frequency", 1, 2);
+  grid.watchParameter("frequency", 1, 5);
+  grid.watchParameter("ellipseRadius", 5, 25);
+  grid.watchParameter("orbitRadius", 15, 5);
 }
 
 void draw() {
