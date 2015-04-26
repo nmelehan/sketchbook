@@ -1,4 +1,5 @@
 import java.lang.reflect.*;
+import java.util.*;
 
 private class WatchedParameter {
   String parameterName;
@@ -21,7 +22,7 @@ public class SketchGrid {
   
   Griddable[][] sketches;
   PGraphics[][] canvases;
-  ArrayList<WatchedParameter> watchedParameters;
+  HashMap<String, WatchedParameter> watchedParameters;
   
   public SketchGrid(Object parentSketch, Griddable sketch) {
     this(parentSketch, sketch, 2, 2, 100, 100);
@@ -36,7 +37,7 @@ public class SketchGrid {
    
     sketches = new Griddable[numRows][numCols];
     canvases = new PGraphics[numRows][numCols];
-    watchedParameters = new ArrayList<WatchedParameter>();
+    watchedParameters = new HashMap<String, WatchedParameter>();
     
     Class sketchClass = sketch.getClass();
     for (int i = 0; i < numRows; i++) {
@@ -65,8 +66,15 @@ public class SketchGrid {
   }
   
   public void watchParameter(String parameterName, float minValue, float maxValue) {
-    watchedParameters.add(new WatchedParameter(parameterName, minValue, maxValue));
+    watchedParameters.put(parameterName, new WatchedParameter(parameterName, minValue, maxValue));
     
+    distributeValuesForParameter(minValue, maxValue, parameterName);
+  }
+  
+  public void setRangeForWatchedParameter(String parameterName, float minValue, float maxValue) {
+    WatchedParameter wp = watchedParameters.get(parameterName);
+    wp.minValue = minValue;
+    wp.maxValue = maxValue;
     distributeValuesForParameter(minValue, maxValue, parameterName);
   }
   

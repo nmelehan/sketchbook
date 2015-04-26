@@ -6,7 +6,7 @@ public class ShapeSketch implements Griddable {
   public ShapeSketch() {
     frequency = (float)(Math.random()*3+2);
     ellipseRadius = 10;
-    orbitRadius = 25;
+    orbitRadius = 10;
   }
   
   public void draw(PGraphics context) {
