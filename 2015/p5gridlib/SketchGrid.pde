@@ -25,11 +25,14 @@ public class SketchGrid {
     println(sketchClass);
     sketches = new Griddable[numRows][numCols];
     canvases = new PGraphics[numRows][numCols];
+    float frequency = 2;
     for (int i = 0; i < numRows; i++) {
       for (int j = 0; j < numCols; j++) {
         try {
           Constructor<?> ctor = sketchClass.getDeclaredConstructor(parentSketch.getClass());
           sketches[i][j] = (Griddable)ctor.newInstance(parentSketch);
+          ((ShapeSketch)sketches[i][j]).frequency = frequency;
+          frequency += .05;
         } catch (Exception e) { 
           println(e);  
         }

@@ -1,5 +1,5 @@
 public class ShapeSketch implements Griddable {
-  float frequency;
+  public float frequency;
   
   public ShapeSketch() {
     frequency = (float)(Math.random()*3+2);
