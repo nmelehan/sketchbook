@@ -25,21 +25,50 @@ public class SketchGrid {
     println(sketchClass);
     sketches = new Griddable[numRows][numCols];
     canvases = new PGraphics[numRows][numCols];
-    float frequency = 2;
     for (int i = 0; i < numRows; i++) {
       for (int j = 0; j < numCols; j++) {
         try {
           Constructor<?> ctor = sketchClass.getDeclaredConstructor(parentSketch.getClass());
           sketches[i][j] = (Griddable)ctor.newInstance(parentSketch);
-          ((ShapeSketch)sketches[i][j]).frequency = frequency;
-          frequency += .05;
         } catch (Exception e) { 
           println(e);  
         }
         canvases[i][j] = createGraphics(sketchWidth, sketchHeight);
       }
     }
+    
+    distributeValuesForParameter(1, 6, "frequency");
   }
+  
+  private void distributeValuesForParameter(float minValue, float maxValue, String parameterName) {
+    float numSketches = numRows*numCols;
+    
+    float value = minValue;
+    for (int i = 0; i < numRows; i++) {
+      for (int j = 0; j < numCols; j++) {
+        set(sketches[i][j], parameterName, value);
+        value = lerp(minValue, maxValue, (i*numCols+j)/numSketches);
+      }
+    }
+  }
+  
+  private boolean set(Object object, String fieldName, Object fieldValue) {
+    Class<?> clazz = object.getClass();
+    while (clazz != null) {
+        try {
+            Field field = clazz.getDeclaredField(fieldName);
+            field.setAccessible(true);
+            field.set(object, fieldValue);
+            return true;
+        } catch (NoSuchFieldException e) {
+            clazz = clazz.getSuperclass();
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+    }
+    return false;
+  }
+
   
   public void draw() {
     for (int i = 0; i < numRows; i++) {
