@@ -16,7 +16,5 @@ void setup() {
 
 void draw() {
   background(255);
-  float radius = 5+10*sin(radians(frameCount));
-  grid.setRangeForWatchedParameter("orbitRadius", radius, radius);
   grid.draw();
 }

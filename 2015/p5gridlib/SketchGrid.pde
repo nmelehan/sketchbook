@@ -3,13 +3,13 @@ import java.util.*;
 
 private class WatchedParameter {
   String parameterName;
-  float minValue;
-  float maxValue;
+  float startValue;
+  float endValue;
   
-  public WatchedParameter(String parameterName, float minValue, float maxValue) {
+  public WatchedParameter(String parameterName, float startValue, float endValue) {
     this.parameterName = parameterName;
-    this.minValue = minValue;
-    this.maxValue = maxValue;
+    this.startValue = startValue;
+    this.endValue = endValue;
   }
 }
 
@@ -53,29 +53,29 @@ public class SketchGrid {
     }
   }
   
-  private void distributeValuesForParameter(float minValue, float maxValue, String parameterName) {
+  private void distributeValuesForParameter(float startValue, float endValue, String parameterName) {
     float numSketches = numRows*numCols;
     
-    float value = minValue;
+    float value = startValue;
     for (int i = 0; i < numRows; i++) {
       for (int j = 0; j < numCols; j++) {
         set(sketches[i][j], parameterName, value);
-        value = lerp(minValue, maxValue, (i*numCols+j)/numSketches);
+        value = lerp(startValue, endValue, (i*numCols+j)/numSketches);
       }
     }
   }
   
-  public void watchParameter(String parameterName, float minValue, float maxValue) {
-    watchedParameters.put(parameterName, new WatchedParameter(parameterName, minValue, maxValue));
+  public void watchParameter(String parameterName, float startValue, float endValue) {
+    watchedParameters.put(parameterName, new WatchedParameter(parameterName, startValue, endValue));
     
-    distributeValuesForParameter(minValue, maxValue, parameterName);
+    distributeValuesForParameter(startValue, endValue, parameterName);
   }
   
-  public void setRangeForWatchedParameter(String parameterName, float minValue, float maxValue) {
+  public void setRangeForWatchedParameter(String parameterName, float startValue, float endValue) {
     WatchedParameter wp = watchedParameters.get(parameterName);
-    wp.minValue = minValue;
-    wp.maxValue = maxValue;
-    distributeValuesForParameter(minValue, maxValue, parameterName);
+    wp.startValue = startValue;
+    wp.endValue = endValue;
+    distributeValuesForParameter(startValue, endValue, parameterName);
   }
   
   private boolean set(Object object, String fieldName, Object fieldValue) {
