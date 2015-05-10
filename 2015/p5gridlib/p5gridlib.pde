@@ -1,7 +1,7 @@
 SketchGrid grid;
 
-int numRows = 8;
-int numCols = 8;
+int numRows = 4;
+int numCols = 4;
 
 int sketchWidth = 50;
 int sketchHeight = 50;
@@ -17,4 +17,12 @@ void setup() {
 void draw() {
   background(255);
   grid.draw();
+  int frameSkip = 3;
+  if (frameCount%frameSkip == 0 && frameCount < frameSkip*200) {
+    saveFrame("gif-####.gif");
+  } else if (frameCount >= 1000) {
+    textSize(18);
+    fill(0);
+    text("gif saved", width/2, height/2);
+  }
 }
