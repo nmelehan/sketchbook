@@ -1,9 +1,13 @@
+import codeanticode.tablet.*;
+
 Tablet tablet;
 
 int sketchWidth = 500;
-int sketchWidth = 500;
+int sketchHeight = 500;
 
 void setup() {
+ size(sketchWidth, sketchHeight); 
+  
  tablet = new Tablet(this); 
 }
 
