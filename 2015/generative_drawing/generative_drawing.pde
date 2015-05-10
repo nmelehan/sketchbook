@@ -1,6 +1,7 @@
 import codeanticode.tablet.*;
 
 Tablet tablet;
+Artist artist;
 
 int sketchWidth = 500;
 int sketchHeight = 500;
@@ -9,6 +10,7 @@ void setup() {
  size(sketchWidth, sketchHeight); 
   
  tablet = new Tablet(this); 
+ artist = new Artist();
 }
 
 void draw() {
@@ -28,6 +30,11 @@ void draw() {
     
     // ...but it is equivalent to simply use Processing's built-in mouse 
     // variables.
-    line(pmouseX, pmouseY, mouseX, mouseY);  
+    //line(pmouseX, pmouseY, mouseX, mouseY);  
+    Stroke stroke = new Stroke();
+    stroke.x = tablet.getPenX();
+    stroke.y = tablet.getPenY();
+    stroke.penPressure = tablet.getPressure();
+    artist.drawStroke(stroke);
   }
 }
