@@ -16,4 +16,10 @@ public class Artist {
     context.ellipse(stroke.x, stroke.y, stroke.penPressure*30, stroke.penPressure*30);
     context.endDraw();
   }
+  
+  public void drawHistory(PGraphics context) {
+    for (int i = 0; i < history.size(); i++) {
+      drawStroke(history.get(i), context); 
+    }
+  }
 }

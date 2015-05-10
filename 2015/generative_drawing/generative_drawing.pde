@@ -13,6 +13,8 @@ void setup() {
  tablet = new Tablet(this); 
  artist = new Artist();
  canvas = createGraphics(250, 500);
+ canvas.beginDraw();
+ canvas.endDraw();
 }
 
 void draw() {
@@ -34,7 +36,13 @@ void draw() {
     // variables.
     line(pmouseX, pmouseY, mouseX, mouseY);  
     Stroke stroke = new Stroke(tablet.getPenX(), tablet.getPenY(), tablet.getPressure());
-    artist.drawStroke(stroke, canvas);
-    image(canvas, 250, 0);
+    artist.addStroke(stroke);
+  }
+  image(canvas, 250, 0);
+}
+
+void keyPressed() {
+  if (key == 'h') {
+    artist.drawHistory(canvas);
   }
 }
