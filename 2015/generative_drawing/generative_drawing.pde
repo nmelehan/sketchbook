@@ -33,10 +33,7 @@ void draw() {
     // ...but it is equivalent to simply use Processing's built-in mouse 
     // variables.
     line(pmouseX, pmouseY, mouseX, mouseY);  
-    Stroke stroke = new Stroke();
-    stroke.x = tablet.getPenX();
-    stroke.y = tablet.getPenY();
-    stroke.penPressure = tablet.getPressure();
+    Stroke stroke = new Stroke(tablet.getPenX(), tablet.getPenY(), tablet.getPressure());
     artist.drawStroke(stroke, canvas);
     image(canvas, 250, 0);
   }
