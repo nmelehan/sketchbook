@@ -9,9 +9,11 @@ public class Artist {
     history.add(stroke);
   }
   
-  public void drawStroke(Stroke stroke) {
-    noStroke();
-    fill(25);
-    ellipse(stroke.x, stroke.y, stroke.penPressure*30, stroke.penPressure*30);
+  public void drawStroke(Stroke stroke, PGraphics context) {
+    context.beginDraw();
+    context.noStroke();
+    context.fill(stroke.penPressure*255, 0, 255);
+    context.ellipse(stroke.x, stroke.y, stroke.penPressure*30, stroke.penPressure*30);
+    context.endDraw();
   }
 }
