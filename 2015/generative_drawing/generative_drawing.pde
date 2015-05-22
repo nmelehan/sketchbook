@@ -9,7 +9,6 @@ boolean toggleValue = false;
 
 Tablet tablet;
 Artist artist;
-PGraphics canvas;
 
 int controlPanelWidth = 200;
 
@@ -27,11 +26,9 @@ void setup() {
   
  tablet = new Tablet(this); 
  artist = new Artist();
- canvas = createGraphics(canvasWidth, canvasHeight);
- canvas.beginDraw();
- canvas.endDraw();
+ artist.setCanvasSize(canvasWidth, canvasHeight);
  
-   smooth();
+  smooth();
   cp5 = new ControlP5(this);
   
   // create a toggle and change the default look to a (on/off) switch look
@@ -66,7 +63,7 @@ void draw() {
   }
   
   drawLayout();
-  image(canvas, sketchPadding+controlPanelGap+controlPanelWidth, sketchPadding);
+  image(artist.getCanvas(), sketchPadding+controlPanelGap+controlPanelWidth, sketchPadding);
 }
 
 boolean sketchFullScreen() {
@@ -74,5 +71,5 @@ boolean sketchFullScreen() {
 }
 
 void drawHistory(){
-   artist.drawHistory(canvas);
+   artist.drawHistory();
 }
