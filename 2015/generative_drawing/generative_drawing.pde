@@ -41,6 +41,10 @@ void draw() {
   image(canvas, 250, 0);
 }
 
+boolean sketchFullScreen() {
+  return true;
+}
+
 void keyPressed() {
   if (key == 'h') {
     artist.drawHistory(canvas);

@@ -9,7 +9,7 @@ public class Artist {
     history.add(stroke);
   }
   
-  public void drawStroke(Stroke stroke, PGraphics context) {
+  private void drawStroke(Stroke stroke, PGraphics context) {
     context.beginDraw();
     context.noStroke();
     context.fill(stroke.penPressure*255, 0, 255);
