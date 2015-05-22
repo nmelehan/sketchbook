@@ -1,52 +1,78 @@
 import codeanticode.tablet.*;
+import controlP5.*;
+
+ControlP5 cp5;
+
+int col = color(255);
+
+boolean toggleValue = false;
 
 Tablet tablet;
 Artist artist;
 PGraphics canvas;
 
-int sketchWidth = 500;
-int sketchHeight = 500;
+int controlPanelWidth = 200;
+
+int canvasWidth = 1000;
+int canvasHeight = 1000;
+
+int controlPanelGap = 10;
+int sketchPadding = 10;
+
+int sketchWidth = sketchPadding*2+controlPanelWidth+controlPanelGap+canvasWidth;
+int sketchHeight = sketchPadding*2+canvasHeight;
 
 void setup() {
  size(sketchWidth, sketchHeight); 
   
  tablet = new Tablet(this); 
  artist = new Artist();
- canvas = createGraphics(250, 500);
+ canvas = createGraphics(canvasWidth, canvasHeight);
  canvas.beginDraw();
  canvas.endDraw();
+ 
+   smooth();
+  cp5 = new ControlP5(this);
+  
+  // create a toggle and change the default look to a (on/off) switch look
+  cp5.addButton("drawHistory")
+     .setPosition(sketchPadding,sketchPadding)
+     .setSize(controlPanelWidth,controlPanelWidth)
+     ;
+}
+
+void drawLayout() {
+  strokeWeight(1);
+  stroke(25);
+  noFill();
+  
+  rect(sketchPadding+controlPanelGap+controlPanelWidth, sketchPadding, canvasWidth, canvasHeight);
+}
+
+float mouseXToCanvasX(float x) {
+  return x-(sketchPadding+controlPanelGap+controlPanelWidth);
+}
+
+float mouseYToCanvasY(float y) {
+  return y-sketchPadding;
 }
 
 void draw() {
   if (tablet.isMovement()) {
-   strokeWeight(30 * tablet.getPressure());
-    
-    // Aside from tablet.getPressure(), which should be available on all pens, 
-    // pen may support:
-    //tablet.getTiltX(), tablet.getTiltY() MOST PENS
-    //tablet.getSidePressure() - AIRBRUSH PEN
-    //tablet.getRotation() - ART or PAINTING PEN    
-    
-    // The tablet getPen methods can be used to retrieve the pen current and 
-    // saved position (requires calling tablet.saveState() at the end of 
-    // draw())...
-    //line(tablet.getSavedPenX(), tablet.getSavedPenY(), tablet.getPenX(), tablet.getPenY());
-    
-    // ...but it is equivalent to simply use Processing's built-in mouse 
-    // variables.
+   strokeWeight(3 * tablet.getPressure());
     line(pmouseX, pmouseY, mouseX, mouseY);  
-    Stroke stroke = new Stroke(tablet.getPenX(), tablet.getPenY(), tablet.getPressure());
+    Stroke stroke = new Stroke(mouseXToCanvasX(tablet.getPenX()), mouseYToCanvasY(tablet.getPenY()), tablet.getPressure());
     artist.addStroke(stroke);
   }
-  image(canvas, 250, 0);
+  
+  drawLayout();
+  image(canvas, sketchPadding+controlPanelGap+controlPanelWidth, sketchPadding);
 }
 
 boolean sketchFullScreen() {
   return true;
 }
 
-void keyPressed() {
-  if (key == 'h') {
-    artist.drawHistory(canvas);
-  }
+void drawHistory(){
+   artist.drawHistory(canvas);
 }
