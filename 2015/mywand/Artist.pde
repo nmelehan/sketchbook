@@ -1,42 +1,23 @@
 public class Artist {
   ArrayList<Stroke> history; // the "model"
   
-  private PGraphics canvas; // the "view"
-  
-  HCanvas canvas;
-  HRect brush;
+  HCanvas hcanvas; // the "view"
   
   boolean liveUpdate = true;
   
-  private int canvasWidth, canvasHeight;
-  
   public Artist() {
     this.history = new ArrayList<Stroke>();
-    this.canvasWidth = 100;
-    this.canvasHeight = 100;
     
-    resetCanvas();
-    
-    canvas = new HCanvas();
-    H.add(canvas);
-    
-    
+    hcanvas = new HCanvas();
+    H.add(hcanvas);
   }
   
-  public void resetCanvas() {
-    this.canvas = createGraphics(canvasWidth, canvasHeight);
-    this.canvas.beginDraw();
-    this.canvas.endDraw();
-  }
-  
-  public void setCanvasSize(int canvasWidth, int canvasHeight) {
-     this.canvasWidth = canvasWidth;
-     this.canvasHeight = canvasHeight;
-     resetCanvas();
-  }
-  
-  public PGraphics getCanvas() {
-    return this.canvas; 
+  public void clearCanvas() {
+    // havent figured out how to clear the canvas
+    for(HDrawable.HDrawableIterator it=hcanvas.iterator();it.hasNext();) {
+      it.remove();
+      it.next();
+    }
   }
   
   public void addStroke(Stroke stroke) {
@@ -47,13 +28,22 @@ public class Artist {
   }
   
   private void drawStroke(Stroke stroke) {
-    PGraphics context = this.canvas;
+    HDrawable mark = new HRect(stroke.penPressure*30)
+      .rounding(10)
+      .noStroke()
+      .fill(#ECECEC)
+      .anchorAt(H.CENTER)
+      .loc(stroke.x, stroke.y)
+    ;
     
-    context.beginDraw();
-    context.noStroke();
-    context.fill(stroke.penPressure*255, 0, 255);
-    context.ellipse(stroke.x, stroke.y, stroke.penPressure*30, stroke.penPressure*30);
-    context.endDraw();
+    HTween tween = new HTween()
+        .target(mark)
+        .property(H.SIZE)
+        .start(0)
+        .end(stroke.penPressure*60)
+        .ease(.5).spring(0);
+  
+    hcanvas.add(mark);
   }
   
   public void drawHistory() {

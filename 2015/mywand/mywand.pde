@@ -23,18 +23,22 @@ int sketchHeight = sketchPadding*2+canvasHeight;
 
 void setup() {
  size(sketchWidth, sketchHeight); 
+ 
+ H.init(this).background(#202020);
   
  tablet = new Tablet(this); 
  artist = new Artist();
- artist.setCanvasSize(canvasWidth, canvasHeight);
+ artist.hcanvas.size(canvasWidth, canvasHeight);
+ artist.hcanvas.loc(sketchPadding+controlPanelGap+controlPanelWidth, sketchPadding);
  
   smooth();
   cp5 = new ControlP5(this);
   
   // create a toggle and change the default look to a (on/off) switch look
-  cp5.addButton("drawHistory")
+  cp5.addButton("clearCanvas")
      .setPosition(sketchPadding,sketchPadding)
      .setSize(controlPanelWidth,controlPanelWidth)
+     .setLabelVisible(false)
      ;
 }
 
@@ -63,13 +67,14 @@ void draw() {
   }
   
   drawLayout();
-  image(artist.getCanvas(), sketchPadding+controlPanelGap+controlPanelWidth, sketchPadding);
+  
+  H.drawStage();
 }
 
 boolean sketchFullScreen() {
   return true;
 }
 
-void drawHistory(){
-   artist.drawHistory();
+void clearCanvas(){
+   artist.clearCanvas();
 }
