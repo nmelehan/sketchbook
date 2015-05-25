@@ -10,10 +10,10 @@ boolean toggleValue = false;
 Tablet tablet;
 Artist artist;
 
-int controlPanelWidth = 200;
+int controlPanelWidth = 25;
 
-int canvasWidth = 1000;
-int canvasHeight = 1000;
+int canvasWidth = 500;
+int canvasHeight = 500;
 
 int controlPanelGap = 10;
 int sketchPadding = 10;

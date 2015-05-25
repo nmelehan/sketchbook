@@ -3,6 +3,9 @@ public class Artist {
   
   private PGraphics canvas; // the "view"
   
+  HCanvas canvas;
+  HRect brush;
+  
   boolean liveUpdate = true;
   
   private int canvasWidth, canvasHeight;
@@ -13,6 +16,11 @@ public class Artist {
     this.canvasHeight = 100;
     
     resetCanvas();
+    
+    canvas = new HCanvas();
+    H.add(canvas);
+    
+    
   }
   
   public void resetCanvas() {
