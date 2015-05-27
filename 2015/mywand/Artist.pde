@@ -2,14 +2,17 @@ public class Artist {
   ArrayList<Stroke> history; // the "model"
   
   HCanvas hcanvas; // the "view"
+  HRect mark;
   
   boolean liveUpdate = true;
   
   public Artist() {
     this.history = new ArrayList<Stroke>();
     
-    hcanvas = new HCanvas();
+    hcanvas = new HCanvas.auto.audto();
+    mark = new HRect();
     H.add(hcanvas);
+    hcanvas.add(mark);
   }
   
   public void clearCanvas() {
@@ -28,8 +31,9 @@ public class Artist {
   }
   
   private void drawStroke(Stroke stroke) {
-    HDrawable mark = new HRect(stroke.penPressure*30)
+    mark
       .rounding(10)
+      .size(stroke.penPressure*30)
       .noStroke()
       .fill(#ECECEC)
       .anchorAt(H.CENTER)
@@ -42,8 +46,6 @@ public class Artist {
         .start(0)
         .end(stroke.penPressure*60)
         .ease(.5).spring(0);
-  
-    hcanvas.add(mark);
   }
   
   public void drawHistory() {
