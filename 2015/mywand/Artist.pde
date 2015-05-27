@@ -9,8 +9,9 @@ public class Artist {
   public Artist() {
     this.history = new ArrayList<Stroke>();
     
-    hcanvas = new HCanvas.auto.audto();
+    hcanvas = new HCanvas().autoClear(false);
     mark = new HRect();
+    mark.visibility(false);
     H.add(hcanvas);
     hcanvas.add(mark);
   }
@@ -33,6 +34,7 @@ public class Artist {
   private void drawStroke(Stroke stroke) {
     mark
       .rounding(10)
+      .visibility(true)
       .size(stroke.penPressure*30)
       .noStroke()
       .fill(#ECECEC)
