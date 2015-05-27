@@ -21,6 +21,8 @@ int sketchPadding = 10;
 int sketchWidth = sketchPadding*2+controlPanelWidth+controlPanelGap+canvasWidth;
 int sketchHeight = sketchPadding*2+canvasHeight;
 
+HText frameRateString;
+
 void setup() {
  size(sketchWidth, sketchHeight); 
  
@@ -30,6 +32,10 @@ void setup() {
  artist = new Artist();
  artist.hcanvas.size(canvasWidth, canvasHeight);
  artist.hcanvas.loc(sketchPadding+controlPanelGap+controlPanelWidth, sketchPadding);
+ 
+  frameRateString = new HText(str(frameRate), 48);
+  frameRateString.fill(#FFFFFF).anchorAt(H.CENTER).loc(100,100);
+  H.add(frameRateString);
  
   smooth();
   cp5 = new ControlP5(this);
@@ -59,6 +65,8 @@ float mouseYToCanvasY(float y) {
 }
 
 void draw() {
+  frameRateString.text(str(frameRate));
+  
   if (tablet.isMovement()) {
    strokeWeight(3 * tablet.getPressure());
     line(pmouseX, pmouseY, mouseX, mouseY);  
