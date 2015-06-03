@@ -25,8 +25,10 @@ HColorPool colors;
 
 HCanvas hcanvas;
 
+boolean drawPhoto = true;
 
-int sketchBackgroundColor = color(200, 200, 200);
+int sketchBackgroundColor = color(255, 255, 255);
+//color sketchBackgroundColor = color(255, 255, 255);
 int squareSize = 100;
 int squareMargin = 5;
 int gridDimensionWidth = 5;
@@ -36,14 +38,14 @@ public int sketchDimension() {
 	return (squareSize+squareMargin)*gridDimensionWidth - squareMargin + sketchMargin*2;
 }
 
-public void drawMask() {
+/*void drawMask() {
   hcanvas.add(new HRect(sketchDimension(), sketchDimension()).fill(sketchBackgroundColor).loc(0,0));
 
   colors = new HColorPool()
-    .add(0xff0095a8, 2)
-    .add(0xff00616f, 2)
-    .add(0xffFF3300)
-    .add(0xffFF6600)
+    .add(#0095a8, 2)
+    .add(#00616f, 2)
+    .add(#FF3300)
+    .add(#FF6600)
   ;
 
   pool = new HDrawablePool(gridDimensionWidth*gridDimensionWidth);
@@ -52,7 +54,7 @@ public void drawMask() {
     .add (
       new HRect(squareSize)
       .rounding(2)
-      .fill(0xffFFFFFF)
+      .fill(#FFFFFF)
     )
 
     .layout (
@@ -90,6 +92,80 @@ public void drawMask() {
 
     .requestAll()
   ; // end -- pool.
+}*/
+
+public void drawMask() {
+	hcanvas.add(new HRect(sketchDimension(), sketchDimension()).fill(sketchBackgroundColor).loc(0,0));
+
+  	colors = new HColorPool(0xffFFFFFF, 0xffF7F7F7, 0xffECECEC, 0xff333333);
+
+	pool = new HDrawablePool(400);
+	pool.autoParent(hcanvas)
+		.add(
+			new HRect(50)
+			.rounding(20)
+			.anchorAt(H.CENTER)
+			.noStroke()
+		)
+
+		.layout(
+			new HGridLayout()
+			.startLoc(0, height/2)
+			.spacing(1, 0)
+			.cols(400)
+		)
+
+		.onCreate(
+			new HCallback() {
+				public void run(Object obj) {
+					int i = pool.currentIndex();
+
+					HDrawable d = (HDrawable) obj;
+					d.fill( colors.getColor(i*100) );
+
+					new HOscillator()
+						.target(d)
+						.property(H.X)
+						.relativeVal(d.x())
+						.range(-300, 300)
+						.speed(1)
+						.freq(0.5f)
+						.currentStep(i)
+					;
+
+					new HOscillator()
+						.target(d)
+						.property(H.Y)
+						.relativeVal(d.y())
+						.range(-300, 300)
+						.speed(2)
+						.freq(0.7f)
+						.currentStep(i)
+					;
+
+					new HOscillator()
+						.target(d)
+						.property(H.ROTATION)
+						.range(0, 360)
+						.speed(0.001f)
+						.freq(1)
+						.currentStep(i)
+					;
+
+					new HOscillator()
+						.target(d)
+						.property(H.SCALE)
+						.range(0, 2)
+						.speed(1)
+						.freq(4)
+						.currentStep(i)
+					;
+				}
+			}
+		)
+
+		.requestAll()
+	;
 }
 
 public void setup() {
@@ -99,33 +175,29 @@ public void setup() {
   hcontext.beginDraw();
   hcontext.endDraw();
 
-  hcanvascontext = createGraphics(sketchDimension(), sketchDimension());
-  hcanvascontext.beginDraw();
-  hcanvascontext.endDraw();
-
   H.init(this, hcontext).background(sketchBackgroundColor);
 
   hcanvas = new HCanvas();
   H.add(hcanvas);
 
   drawMask();
-  hcanvas.paintAll(hcanvascontext, false, 1);
-  //H.drawStage();
-
-
+ 
   photo = loadImage("lr.JPG");
-  photo.mask(hcanvascontext);
 }
 
 public void draw() {
   background(0);
-  image(photo, 0, 0);
+  H.drawStage();
+  photo.mask(hcontext);
+
+  if (drawPhoto) 
+  	image(photo, 0, 0);
+  else 
+  	image(hcontext, 0, 0);
 }
 
 public void keyPressed() {
-  drawMask();
-  H.drawStage();
-  photo.mask(hcontext);
+	drawPhoto = !drawPhoto;
 }
 
 public static abstract class HBehavior extends HNode<HBehavior> {
