@@ -4,13 +4,19 @@ PGraphics hcontext;
 HDrawablePool pool;
 HColorPool colors;
 
-color sketchBackgroundColor = color(#202020);
+color sketchBackgroundColor = color(200, 200, 200);
 int squareSize = 100;
 int squareMargin = 5;
 int gridDimensionWidth = 5;
 int sketchMargin = 20;
 
+int sketchDimension() {
+	return (squareSize+squareMargin)*gridDimensionWidth - squareMargin + sketchMargin*2;
+}
+
 void drawMask() {
+  H.add(new HRect(sketchDimension(), sketchDimension()).fill(sketchBackgroundColor).loc(0,0));
+
   colors = new HColorPool()
     .add(#0095a8, 2)
     .add(#00616f, 2)
@@ -65,14 +71,13 @@ void drawMask() {
 }
 
 void setup() {
-  smooth();
+  //smooth();
+
+  size(sketchDimension(), sketchDimension());
   
-  int sketchDimension = (squareSize+squareMargin)*gridDimensionWidth - squareMargin + sketchMargin*2;
-  size(sketchDimension, sketchDimension);
-  
-  hcontext = createGraphics(sketchDimension, sketchDimension);
+  hcontext = createGraphics(sketchDimension(), sketchDimension());
   hcontext.beginDraw();
-  hcontext.smooth();
+  //hcontext.smooth();
   hcontext.endDraw();
 
   H.init(this, hcontext).background(sketchBackgroundColor);
@@ -86,6 +91,7 @@ void setup() {
 void draw() {
   //drawMask();
   //photo.mask(hcontext);
+  background(0);
   image(photo, 0, 0);
 }
 
