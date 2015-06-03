@@ -1,8 +1,12 @@
 PImage photo, maskImage;
 PGraphics hcontext;
+PGraphics hcanvascontext;
 
 HDrawablePool pool;
 HColorPool colors;
+
+HCanvas hcanvas;
+
 
 color sketchBackgroundColor = color(200, 200, 200);
 int squareSize = 100;
@@ -15,7 +19,7 @@ int sketchDimension() {
 }
 
 void drawMask() {
-  H.add(new HRect(sketchDimension(), sketchDimension()).fill(sketchBackgroundColor).loc(0,0));
+  hcanvas.add(new HRect(sketchDimension(), sketchDimension()).fill(sketchBackgroundColor).loc(0,0));
 
   colors = new HColorPool()
     .add(#0095a8, 2)
@@ -26,7 +30,7 @@ void drawMask() {
 
   pool = new HDrawablePool(gridDimensionWidth*gridDimensionWidth);
   pool
-    .autoAddToStage()
+    .autoParent(hcanvas)
     .add (
       new HRect(squareSize)
       .rounding(2)
@@ -71,26 +75,31 @@ void drawMask() {
 }
 
 void setup() {
-  //smooth();
-
   size(sketchDimension(), sketchDimension());
   
   hcontext = createGraphics(sketchDimension(), sketchDimension());
   hcontext.beginDraw();
-  //hcontext.smooth();
   hcontext.endDraw();
 
+  hcanvascontext = createGraphics(sketchDimension(), sketchDimension());
+  hcanvascontext.beginDraw();
+  hcanvascontext.endDraw();
+
   H.init(this, hcontext).background(sketchBackgroundColor);
-  
+
+  hcanvas = new HCanvas();
+  H.add(hcanvas);
+
   drawMask();
-  H.drawStage();
+  hcanvas.paintAll(hcanvascontext, false, 1);
+  //H.drawStage();
+
+
   photo = loadImage("lr.JPG");
-  photo.mask(hcontext);
+  photo.mask(hcanvascontext);
 }
 
 void draw() {
-  //drawMask();
-  //photo.mask(hcontext);
   background(0);
   image(photo, 0, 0);
 }
