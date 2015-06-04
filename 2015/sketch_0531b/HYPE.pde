@@ -1343,8 +1343,11 @@ public static class HStage extends HDrawable implements HImageHolder {
 		return _autoClears;
 	}
 	public HStage clear() {
-		if(_bgImg == null) _app.background(_fill);
-		else _app.background(_bgImg);
+		PGraphics context = H.getGraphicsContext();
+		if (context == null) return this;
+
+		if(_bgImg == null) context.background(_fill);
+		else context.background(_bgImg);
 		return this;
 	}
 	public HDrawable fill(int clr) {
@@ -1580,9 +1583,9 @@ public static class H implements HConstants {
 	public static H drawStage() {
 		_behaviors.runAll(_app);
 		_mouse.handleEvents();
-		_graphicsContext.beginDraw();
+		_graphicsContext.beginDraw(); // to handle drawing to non-app context
 		_stage.paintAll(_graphicsContext, _uses3D, 1);
-		_graphicsContext.endDraw();
+		_graphicsContext.endDraw(); // to handle drawing to non-app context
 		return _self;
 	}
 	public static boolean mouseStarted() {

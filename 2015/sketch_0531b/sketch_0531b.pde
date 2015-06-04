@@ -9,8 +9,8 @@ HCanvas hcanvas;
 
 boolean drawPhoto = true;
 
+//color sketchBackgroundColor = color(0, 0, 0);
 color sketchBackgroundColor = color(255, 255, 255);
-//color sketchBackgroundColor = color(255, 255, 255);
 int squareSize = 100;
 int squareMargin = 5;
 int gridDimensionWidth = 5;
@@ -77,7 +77,7 @@ int sketchDimension() {
 }*/
 
 void drawMask() {
-	hcanvas.add(new HRect(sketchDimension(), sketchDimension()).fill(sketchBackgroundColor).loc(0,0));
+	//hcanvas.add(new HRect(sketchDimension(), sketchDimension()).fill(sketchBackgroundColor).loc(0,0));
 
   	colors = new HColorPool(#FFFFFF, #F7F7F7, #ECECEC, #333333);
 
@@ -157,9 +157,9 @@ void setup() {
   hcontext.beginDraw();
   hcontext.endDraw();
 
-  H.init(this, hcontext).background(sketchBackgroundColor);
+  H.init(this, hcontext).background(255);
 
-  hcanvas = new HCanvas();
+  hcanvas = new HCanvas().autoClear(true);
   H.add(hcanvas);
 
   drawMask();
@@ -168,8 +168,8 @@ void setup() {
 }
 
 void draw() {
-  background(0);
   H.drawStage();
+  background(255, 0, 0);
   photo.mask(hcontext);
 
   if (drawPhoto) 

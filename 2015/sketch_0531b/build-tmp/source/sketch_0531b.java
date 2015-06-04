@@ -27,8 +27,8 @@ HCanvas hcanvas;
 
 boolean drawPhoto = true;
 
+//color sketchBackgroundColor = color(0, 0, 0);
 int sketchBackgroundColor = color(255, 255, 255);
-//color sketchBackgroundColor = color(255, 255, 255);
 int squareSize = 100;
 int squareMargin = 5;
 int gridDimensionWidth = 5;
@@ -95,7 +95,7 @@ public int sketchDimension() {
 }*/
 
 public void drawMask() {
-	hcanvas.add(new HRect(sketchDimension(), sketchDimension()).fill(sketchBackgroundColor).loc(0,0));
+	//hcanvas.add(new HRect(sketchDimension(), sketchDimension()).fill(sketchBackgroundColor).loc(0,0));
 
   	colors = new HColorPool(0xffFFFFFF, 0xffF7F7F7, 0xffECECEC, 0xff333333);
 
@@ -175,9 +175,9 @@ public void setup() {
   hcontext.beginDraw();
   hcontext.endDraw();
 
-  H.init(this, hcontext).background(sketchBackgroundColor);
+  H.init(this, hcontext).background(255);
 
-  hcanvas = new HCanvas();
+  hcanvas = new HCanvas().autoClear(true);
   H.add(hcanvas);
 
   drawMask();
@@ -186,8 +186,8 @@ public void setup() {
 }
 
 public void draw() {
-  background(0);
   H.drawStage();
+  background(255, 0, 0);
   photo.mask(hcontext);
 
   if (drawPhoto) 
@@ -1544,8 +1544,11 @@ public static class HStage extends HDrawable implements HImageHolder {
 		return _autoClears;
 	}
 	public HStage clear() {
-		if(_bgImg == null) _app.background(_fill);
-		else _app.background(_bgImg);
+		PGraphics context = H.getGraphicsContext();
+		if (context == null) return this;
+
+		if(_bgImg == null) context.background(_fill);
+		else context.background(_bgImg);
 		return this;
 	}
 	public HDrawable fill(int clr) {
@@ -1781,9 +1784,9 @@ public static class H implements HConstants {
 	public static H drawStage() {
 		_behaviors.runAll(_app);
 		_mouse.handleEvents();
-		_graphicsContext.beginDraw();
+		_graphicsContext.beginDraw(); // to handle drawing to non-app context
 		_stage.paintAll(_graphicsContext, _uses3D, 1);
-		_graphicsContext.endDraw();
+		_graphicsContext.endDraw(); // to handle drawing to non-app context
 		return _self;
 	}
 	public static boolean mouseStarted() {
