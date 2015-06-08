@@ -2,21 +2,23 @@ HDrawablePool shapePool;
 
 int quadMargin = 25;
 int sketchSize = 750;
-color sketchBackgroundColor = color(225);
-color quadStrokeColor = color(25);
-int quadStrokeWeight = 20;
+color sketchBackgroundColor = color(250);
+color quadStrokeColor = color(50);
+int quadStrokeWeight = 5;
 int quadStrokeJoin = ROUND;
 int sizeOfPool = 7;
 
 float maxDistance = 200, minDistance = 25;
 
-HColorPool colors = new HColorPool()
+/*HColorPool colors = new HColorPool()
 			.add(#FF6138)
 			.add(#FFFF9D)
 			.add(#BEEB9F)
 			.add(#79BD8F)
 			.add(#00A388)
-		;
+		;*/
+
+HColorPool colors = new HColorPool(#333333, #0095A8, #00616F, #FF3300);
 
 void setup() {
 	size(sketchSize, sketchSize);
@@ -56,14 +58,38 @@ void assignVertices(HDrawablePool shapePool) {
 
 void drawPattern() {
 	if (shapePool == null) {
+		// background square
+		int numLinesInGrid = 20;
+		color lineStrokeColor = 200;
+		for (int i = 1; i < numLinesInGrid; i++) {
+			H.add(
+				new HPath()
+					.vertex(quadMargin+i*(width-quadMargin*2)/numLinesInGrid, quadMargin)
+					.vertex(quadMargin+i*(width-quadMargin*2)/numLinesInGrid, height-quadMargin)
+					.stroke(lineStrokeColor)
+					.strokeWeight(1)
+			);
+		}
+		for (int i = 1; i < numLinesInGrid; i++) {
+			H.add(
+				new HPath()
+					.vertex(quadMargin, quadMargin+i*(height-quadMargin*2)/numLinesInGrid)
+					.vertex(width-quadMargin, quadMargin+i*(height-quadMargin*2)/numLinesInGrid)
+					.stroke(lineStrokeColor)
+					.strokeWeight(1)
+			);
+		}
+
 		H.add(
 			new HRect()
 				.rounding(10)
 				.size(width-quadMargin*2)
 				.loc(quadMargin, quadMargin)
-				.noStroke()
-				.fill(50)
+				.stroke(quadStrokeColor)
+				.strokeWeight(2)
+				.noFill()
 		);
+
 
 		HCanvas canvas = new HCanvas()
 			.autoClear(true);
