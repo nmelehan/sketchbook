@@ -3,9 +3,20 @@ HDrawablePool shapePool;
 int quadMargin = 25;
 int sketchSize = 750;
 color sketchBackgroundColor = color(225);
-color quadStrokeColor = color(225);
-int quadStrokeWeight = 10;
+color quadStrokeColor = color(25);
+int quadStrokeWeight = 20;
 int quadStrokeJoin = ROUND;
+int sizeOfPool = 7;
+
+float maxDistance = 200, minDistance = 25;
+
+HColorPool colors = new HColorPool()
+			.add(#FF6138)
+			.add(#FFFF9D)
+			.add(#BEEB9F)
+			.add(#79BD8F)
+			.add(#00A388)
+		;
 
 void setup() {
 	size(sketchSize, sketchSize);
@@ -14,42 +25,52 @@ void setup() {
 }
 
 void draw() {
+	minDistance = mouseX/5;
+	maxDistance = max(mouseX, mouseY)/5;
+
 	H.drawStage();
 }
 
-void assignVertices(HPath quadrilateral) {
-	quadrilateral
-		.clear()
-		.vertex(quadMargin, quadMargin)
-		.vertex(width-quadMargin, quadMargin)
-		.vertex(width-quadMargin, random(quadMargin, height-quadMargin))
-		.vertex(quadMargin, random(0, height-quadMargin))
-	;
+void assignVertices(HDrawablePool shapePool) {
+	float bl = quadMargin, br = quadMargin;
+
+	for (HDrawable d : shapePool) {
+		HPath quadrilateral = (HPath)d;
+
+		d.fill (colors.getColor());
+
+		bl = random(min(bl+minDistance, height-quadMargin), min(bl+maxDistance, height-quadMargin));
+		br = random(min(br+minDistance, height-quadMargin), min(br+maxDistance, height-quadMargin));
+
+		println(bl);
+		quadrilateral
+			.clear()
+			.vertex(quadMargin, quadMargin)
+			.vertex(width-quadMargin, quadMargin)
+			.vertex(width-quadMargin, br)
+			.vertex(quadMargin, bl)
+		;
+	}
+	println();
 }
 
 void drawPattern() {
 	if (shapePool == null) {
-		final HColorPool colors = new HColorPool()
-			.add(#FF6138)
-			.add(#FFFF9D)
-			.add(#BEEB9F)
-			.add(#79BD8F)
-			.add(#00A388)
-		;
+		H.add(
+			new HRect()
+				.rounding(10)
+				.size(width-quadMargin*2)
+				.loc(quadMargin, quadMargin)
+				.noStroke()
+				.fill(50)
+		);
 
 		HCanvas canvas = new HCanvas()
 			.autoClear(true);
 		H.add(canvas);
 
-		canvas.add(
-				new HRect()
-					.size(width-quadMargin*2)
-					.loc(quadMargin, quadMargin)
-					.noStroke()
-					.fill(50)
-			);
 
-		shapePool = new HDrawablePool(10)
+		shapePool = new HDrawablePool(sizeOfPool)
 				.autoParent(canvas)
 				.add (
 					new HPath(POLYGON)
@@ -66,8 +87,7 @@ void drawPattern() {
 				.onCreate (
 					 new HCallback() {
 						public void run(Object obj) {
-							HPath d = (HPath) obj;
-							assignVertices(d);	
+							HPath d = (HPath) obj;	
 
 							d
 								.stroke(quadStrokeColor)
@@ -77,6 +97,8 @@ void drawPattern() {
 								.anchorAt(H.TOP | H.LEFT)
 								.loc(0, 0)
 							;
+
+							d.putBefore(d.parent().firstChild());
 						} // end -- run()
 					} // end -- new HCallBack()
 				) // end -- onCreate()
@@ -85,11 +107,7 @@ void drawPattern() {
 		; // end -- new HDrawablePool()
 	} // end if
 
-	else {
-		for (HDrawable d : shapePool) {
-			assignVertices((HPath)d);
-		}
-	} // end else
+	assignVertices(shapePool);
 }
 
 void keyPressed() {
