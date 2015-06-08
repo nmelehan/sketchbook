@@ -1344,7 +1344,11 @@ public static class HStage extends HDrawable implements HImageHolder {
 	}
 	public HStage clear() {
 		PGraphics context = H.getGraphicsContext();
-		if (context == null) return this;
+		if (context == null) {
+			println(H._offscreenGraphicsContext);
+			println("null");
+			return this;
+		}
 
 		if(_bgImg == null) context.background(_fill);
 		else context.background(_bgImg);
@@ -1441,6 +1445,7 @@ public static class H implements HConstants {
 	protected static H _self;
 	protected static PApplet _app;
 	protected static PGraphics _graphicsContext;
+	public static boolean _offscreenGraphicsContext;
 	protected static HStage _stage;
 	protected static HBehaviorRegistry _behaviors;
 	protected static HMouse _mouse;
@@ -1462,6 +1467,8 @@ public static class H implements HConstants {
 			Object o = _app;
 			_graphicsContext = (PGraphics) o;
 		}
+		_offscreenGraphicsContext = false;
+
 		return _self;
 	}
 
@@ -1477,6 +1484,8 @@ public static class H implements HConstants {
 			_graphicsContext.beginDraw();
 			_graphicsContext.endDraw();
 		}
+
+		_offscreenGraphicsContext = true;
 		return _self;
 	}
 
@@ -1504,11 +1513,23 @@ public static class H implements HConstants {
 		return _uses3D;
 	}
 	public static H background(int clr) {
+		if (_offscreenGraphicsContext == true) {
+			_graphicsContext.beginDraw(); // to handle drawing to non-app context
+		}
 		_stage.background(clr);
+		if (_offscreenGraphicsContext == true) {
+			_graphicsContext.endDraw(); // to handle drawing to non-app context
+		}
 		return _self;
 	}
 	public static H backgroundImg(Object arg) {
+		if (_offscreenGraphicsContext == true) {
+			_graphicsContext.beginDraw(); // to handle drawing to non-app context
+		}
 		_stage.backgroundImg(arg);
+		if (_offscreenGraphicsContext == true) {
+			_graphicsContext.endDraw(); // to handle drawing to non-app context
+		}
 		return _self;
 	}
 	public static H autoClear(boolean b) {
@@ -1523,7 +1544,13 @@ public static class H implements HConstants {
 		return _stage.autoClears();
 	}
 	public static H clearStage() {
+		if (_offscreenGraphicsContext == true) {
+			_graphicsContext.beginDraw(); // to handle drawing to non-app context
+		}
 		_stage.clear();
+		if (_offscreenGraphicsContext == true) {
+			_graphicsContext.endDraw(); // to handle drawing to non-app context
+		}
 		return _self;
 	}
 	public static HCanvas add(HCanvas stageChild) {
@@ -1583,9 +1610,13 @@ public static class H implements HConstants {
 	public static H drawStage() {
 		_behaviors.runAll(_app);
 		_mouse.handleEvents();
-		_graphicsContext.beginDraw(); // to handle drawing to non-app context
+		if (_offscreenGraphicsContext == true) {
+			_graphicsContext.beginDraw(); // to handle drawing to non-app context
+		}
 		_stage.paintAll(_graphicsContext, _uses3D, 1);
-		_graphicsContext.endDraw(); // to handle drawing to non-app context
+		if (_offscreenGraphicsContext == true) {
+			_graphicsContext.endDraw(); // to handle drawing to non-app context
+		}
 		return _self;
 	}
 	public static boolean mouseStarted() {
