@@ -10,18 +10,13 @@ int sizeOfPool = 7;
 
 float maxDistance = 200, minDistance = 25;
 
-/*HColorPool colors = new HColorPool()
-			.add(#FF6138)
-			.add(#FFFF9D)
-			.add(#BEEB9F)
-			.add(#79BD8F)
-			.add(#00A388)
-		;*/
-
-HColorPool colors = new HColorPool(#333333, #0095A8, #00616F, #FF3300);
+ColorPoolCollection cpc;
 
 void setup() {
 	size(sketchSize, sketchSize);
+
+	cpc = new ColorPoolCollection();
+
 	H.init(this).background(sketchBackgroundColor).autoClears(true);
 	drawPattern();
 }
@@ -33,18 +28,21 @@ void draw() {
 	H.drawStage();
 }
 
+void assignColors(HDrawablePool shapePool) {
+	for (HDrawable d : shapePool) {
+		d.fill (cpc.getColor());
+	}
+}
+
 void assignVertices(HDrawablePool shapePool) {
 	float bl = quadMargin, br = quadMargin;
 
 	for (HDrawable d : shapePool) {
 		HPath quadrilateral = (HPath)d;
 
-		d.fill (colors.getColor());
-
 		bl = random(min(bl+minDistance, height-quadMargin), min(bl+maxDistance, height-quadMargin));
 		br = random(min(br+minDistance, height-quadMargin), min(br+maxDistance, height-quadMargin));
 
-		println(bl);
 		quadrilateral
 			.clear()
 			.vertex(quadMargin, quadMargin)
@@ -53,7 +51,6 @@ void assignVertices(HDrawablePool shapePool) {
 			.vertex(quadMargin, bl)
 		;
 	}
-	println();
 }
 
 void drawPattern() {
@@ -119,7 +116,7 @@ void drawPattern() {
 								.stroke(quadStrokeColor)
 								.strokeWeight(quadStrokeWeight)
 								.strokeJoin(quadStrokeJoin)
-								.fill( colors.getColor() )
+								.fill( cpc.getColor() )
 								.anchorAt(H.TOP | H.LEFT)
 								.loc(0, 0)
 							;
@@ -140,7 +137,14 @@ void keyPressed() {
 	if (key == 'p') {
 		saveFrame();
 	}
+	else if (key == 'c') {
+		assignColors(shapePool);
+	}
+	else if (key == 'a') {
+		cpc.advancePool();
+		assignColors(shapePool);
+	}
 	else {
-		drawPattern();
+		assignVertices(shapePool);
 	}
 }
