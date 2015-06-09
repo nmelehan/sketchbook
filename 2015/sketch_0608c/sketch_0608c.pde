@@ -18,26 +18,87 @@ void setup() {
 		.fill(accentColor)
 	);
 
-	HCanvas canvas = new HCanvas().autoClear(false).fade(100);
+	HCanvas canvas = new HCanvas().autoClear(false).fade(500);
 	H.add(canvas);
 
-	HEllipse ell = new HEllipse(40);
-	ell
+	/*HEllipse ellR = new HEllipse(40);
+	ellR
 		.loc(width/2, height/2)
 		.anchorAt(H.CENTER)
 		.noStroke()
-		.fill(backgroundColor)
+		.fill(#FF0000)
+                .alpha(100)
 	;
-	canvas.add(ell);
+	canvas.add(ellR);*/
 
-	new HOscillator()
-		.target(ell)
+        HEllipse ellG = new HEllipse(40);
+        ellG
+          .loc(width/2, height/2)
+          .anchorAt(H.CENTER)
+          .noStroke()
+          .fill(#00FF00)
+          .alpha(100)
+        ;
+        canvas.add(ellG);
+
+        HEllipse ellB = new HEllipse(40);
+        ellB
+          .loc(width/2, height/2)
+          .anchorAt(H.CENTER)
+          .noStroke()
+          .fill(#0000FF)
+          .alpha(100)
+        ;
+        canvas.add(ellB);
+
+        HEllipse ell = new HEllipse(40);
+        ell
+          .loc(width/2, height/2)
+          .anchorAt(H.CENTER)
+          .noStroke()
+          .fill(#FFFFFF)
+                      .alpha(155)
+        ;
+        canvas.add(ell);
+
+	/*new HOscillator()
+		.target(ellR)
 		.property(H.X)
 		.relativeVal(width/2)
 		.range(-1*width/2 + margin, width/2 - margin)
 		.speed(1)
 		.freq(2)
-	;
+	;*/
+
+        new HOscillator()
+          .target(ellG)
+          .property(H.X)
+          .relativeVal(width/2)
+          .range(-1*width/2 + margin, width/2 - margin)
+          .speed(1)
+          .freq(2)
+          .currentStep(.5)
+        ;
+      
+        new HOscillator()
+          .target(ellB)
+          .property(H.X)
+          .relativeVal(width/2)
+          .range(-1*width/2 + margin, width/2 - margin)
+          .speed(1)
+          .freq(2)
+          .currentStep(1)
+        ;
+      
+        new HOscillator()
+          .target(ell)
+          .property(H.X)
+          .relativeVal(width/2)
+          .range(-1*width/2 + margin, width/2 - margin)
+          .speed(1)
+          .freq(2)
+          .currentStep(1.5)
+        ;
 }
 
 void draw() {
