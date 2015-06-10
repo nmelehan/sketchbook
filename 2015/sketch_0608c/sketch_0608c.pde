@@ -18,8 +18,42 @@ void setup() {
 		.fill(accentColor)
 	);
 
-	HCanvas canvas = new HCanvas().autoClear(false).fade(500);
+	HCanvas canvas = new HCanvas().autoClear(false).fade(50);
 	H.add(canvas);
+
+	HGroup hLines = new HGroup();
+	canvas.add(hLines);
+
+	final int numLines = 10;
+	final HDrawablePool linesPool = new HDrawablePool(numLines);
+	linesPool
+		.autoParent(hLines)
+		.add(new HPath())
+		.colorist( new HColorPool(#FFFFFF, #F7F7F7, #ECECEC, #333333, #0095A8, #00616F, #FF3300, #FF6600).strokeOnly() )
+
+		.onCreate(
+			new HCallback() {
+				public void run(Object obj) {
+					HPath path = (HPath) obj;
+					path.strokeWeight(4);
+					int i = linesPool.currentIndex();
+					path
+						.vertex(0, (i+1)*height/(numLines+1))
+						.vertex(width, (i+1)*height/(numLines+1));
+				}
+			}
+		)
+
+		.requestAll()
+	;
+
+	new HOscillator()
+		.target(hLines)
+		.property(H.Y)
+		.range(-100, 100)
+		.speed(1)
+		.freq(2)
+	;
 
 	/*HEllipse ellR = new HEllipse(40);
 	ellR
@@ -39,7 +73,7 @@ void setup() {
           .fill(#00FF00)
           .alpha(100)
         ;
-        canvas.add(ellG);
+        //canvas.add(ellG);
 
         HEllipse ellB = new HEllipse(40);
         ellB
@@ -49,7 +83,7 @@ void setup() {
           .fill(#0000FF)
           .alpha(100)
         ;
-        canvas.add(ellB);
+        //canvas.add(ellB);
 
         HEllipse ell = new HEllipse(40);
         ell
@@ -59,7 +93,7 @@ void setup() {
           .fill(#FFFFFF)
                       .alpha(155)
         ;
-        canvas.add(ell);
+        //canvas.add(ell);
 
 	/*new HOscillator()
 		.target(ellR)
