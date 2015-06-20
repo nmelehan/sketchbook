@@ -14,18 +14,18 @@ void addSwarm() {
   canvas.add(swarmGroup);
   H.add(canvas);
 
-
-  swarmBehavior = new HSwarm().speed(4).turnEase(0.01f).twitch(2);
+  swarmBehavior = new HSwarm().speed(.5).turnEase(0.01f).twitch(2);
 
   final HDrawablePool swarmPool = new HDrawablePool(swarmSize);
   swarmPool
     .autoParent(swarmGroup)
 
     .add (new HEllipse()
-			.size(4)
-			.anchorAt(H.CENTER)
-			.noStroke()
-		    .fill(#C69300)
+  			.size(4)
+  			.anchorAt(H.CENTER)
+  			.noStroke()
+		    .fill(#ffffff)
+        .alpha(0)
 	    )
 
     .onCreate(new HCallback() {
@@ -35,15 +35,9 @@ void addSwarm() {
           swarmBehavior.addTarget(d);
         }
       }
-    );
-
-  HTimer trigger = new HTimer(500, swarmSize)
-    .callback(new HCallback() {
-        public void run(Object obj)  {
-          swarmPool.request();
-        }
-    }
-  );
+    )
+    .requestAll()
+    ;
 }
 
 void addGoal(PVector origin) {
@@ -52,27 +46,38 @@ void addGoal(PVector origin) {
   	H.add(goalGroup);
   }
 
-  HEllipse ell = new HEllipse(10);
+  final HEllipse ell = new HEllipse(10);
   ell
-        .stroke(#000000, 20)
-        .strokeWeight(2)
+        .stroke(#ffffff)
+        .strokeWeight(5)
         .noFill()
         .anchorAt(H.CENTER)
-        .loc(origin.x, origin.y);
+        .loc(origin.x, origin.y)
+        .alpha(0)
+        ;
 
   goalGroup.add(ell);
   swarmBehavior.addGoal(ell);
+
+  HTimer trigger = new HTimer(10000)
+    .callback(new HCallback() {
+        public void run(Object obj)  {
+          ell.loc(random(width), random(height));
+        }
+    }
+  );
 }
 
 void addColorField() {
-	colorField = new HColorField(width, height)
-		.addPoint(0, height/2, #FF0066, 0.8f)
-		.addPoint(width, height/2, #3300FF, 0.7f)
-		.fillOnly()
-	;
+  colorField = new HColorField(width, height)
+    .addPoint(0, 0, #FF0066, 0.8f)
+    .addPoint(width, height/2, #3300FF, 0.8f)
+    .addPoint(0, height, #FF0066, .5)
+    .fillOnly()
+  ;
 
-	colorFieldGroup = new HGroup();
-  H.add(colorFieldGroup);
+ colorFieldGroup = new HGroup();
+ H.add(colorFieldGroup);
   HDrawablePool pool = new HDrawablePool(100);
 	pool
     .autoParent(colorFieldGroup)
@@ -92,8 +97,11 @@ void addColorField() {
 			new HCallback(){
 				public void run(Object obj) {
 					HDrawable d = (HDrawable) obj;
-					colorField.applyColor(d);
-					d.noStroke();
+          d
+
+            .fill(#000000)
+          ;
+          colorField.applyColor(d);
 				}
 			}
 		)
@@ -113,15 +121,6 @@ void setup() {
   for (int i = 0; i < 10; i++) {
   	addGoal(new PVector(random(width), random(height)));
   }
-
-  HPath xAxis = new HPath()
-    .vertex(0, height/2)
-    .vertex(width, height/2);
-  HPath yAxis = new HPath()
-    .vertex(width/2, 0)
-    .vertex(width/2, height);
-  H.add(xAxis);
-  H.add(yAxis);
 }
 
 void draw() {
@@ -130,10 +129,14 @@ void draw() {
 }
 
 void updateColorField() {
+  colorField.removeAllPoints();
   for (HDrawable d : swarmGroup) {
-    println(d.loc());
+    colorField.addPoint(d.loc(), color(255, 0, 125, .1), 0.2f);
   }
-  println();
+  for (HDrawable d : colorFieldGroup) {
+    d.fill(#000000);
+    colorField.applyColor(d);
+  }
 }
 
 void keyPressed() {

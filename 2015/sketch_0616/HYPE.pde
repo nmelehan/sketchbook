@@ -1446,7 +1446,7 @@ public static class H implements HConstants {
 	protected static HMouse _mouse;
 	private static boolean _uses3D;
 
-	public static H init(PApplet applet) 
+	public static H init(PApplet applet)
 	{
 		_app = applet;
 
@@ -3150,6 +3150,10 @@ public static class HColorField implements HColorist {
 		_colorPoints.add(pt);
 		return this;
 	}
+	public HColorField removeAllPoints(){
+		_colorPoints.clear();
+		return this;
+	}
 	public int getColor(float x, float y, int baseColor) {
 		int[] baseClrs = HColors.explode(baseColor);
 		int[] maxClrs = new int[4];
@@ -3161,68 +3165,64 @@ public static class HColorField implements HColorist {
 			initJ = 1;
 			maxClrs[0] = baseClrs[0];
 		}
-		for(int i=0;
-			i<_colorPoints.size();
-			++i) {
+		for(int i=0; i<_colorPoints.size(); ++i) {
 			HColorPoint pt = _colorPoints.get(i);
-		int[] ptClrs = HColors.explode(pt.clr);
-		float distLimit = _maxDist * pt.radius;
-		float dist = HMath.dist(x,y, pt.x,pt.y);
-		if(dist > distLimit) dist = distLimit;
-		for(int j=initJ;
-			j<4;
-			++j) {
-			int newClrVal = Math.round( HMath.map(dist, 0,distLimit, ptClrs[j], baseClrs[j]));
-		if(newClrVal > maxClrs[j]) maxClrs[j] = newClrVal;
+			int[] ptClrs = HColors.explode(pt.clr);
+			float distLimit = _maxDist * pt.radius;
+			float dist = HMath.dist(x,y, pt.x,pt.y);
+			if(dist > distLimit) dist = distLimit;
+			for(int j=initJ; j<4; ++j) {
+				int newClrVal = Math.round( HMath.map(dist, 0,distLimit, ptClrs[j], baseClrs[j]));
+				if(newClrVal > maxClrs[j]) maxClrs[j] = newClrVal;
+			}
+		}
+		return HColors.merge(maxClrs[0],maxClrs[1],maxClrs[2],maxClrs[3]);
 	}
-}
-return HColors.merge(maxClrs[0],maxClrs[1],maxClrs[2],maxClrs[3]);
-}
-public HColorField appliesAlpha(boolean b) {
-	_appliesAlpha = b;
-	return this;
-}
-public boolean appliesAlpha() {
-	return _appliesAlpha;
-}
-public HColorField fillOnly() {
-	_appliesFill = true;
-	_appliesStroke = false;
-	return this;
-}
-public HColorField strokeOnly() {
-	_appliesFill = false;
-	_appliesStroke = true;
-	return this;
-}
-public HColorField fillAndStroke() {
-	_appliesFill = _appliesStroke = true;
-	return this;
-}
-public boolean appliesFill() {
-	return _appliesFill;
-}
-public boolean appliesStroke() {
-	return _appliesStroke;
-}
-public HDrawable applyColor(HDrawable drawable) {
-	float x = drawable.x();
-	float y = drawable.y();
-	if(_appliesFill) {
-		int baseFill = drawable.fill();
-		drawable.fill( getColor(x,y, baseFill) );
+	public HColorField appliesAlpha(boolean b) {
+		_appliesAlpha = b;
+		return this;
 	}
-	if(_appliesStroke) {
-		int baseStroke = drawable.stroke();
-		drawable.stroke( getColor(x,y, baseStroke) );
+	public boolean appliesAlpha() {
+		return _appliesAlpha;
 	}
-	return drawable;
-}
+	public HColorField fillOnly() {
+		_appliesFill = true;
+		_appliesStroke = false;
+		return this;
+	}
+	public HColorField strokeOnly() {
+		_appliesFill = false;
+		_appliesStroke = true;
+		return this;
+	}
+	public HColorField fillAndStroke() {
+		_appliesFill = _appliesStroke = true;
+		return this;
+	}
+	public boolean appliesFill() {
+		return _appliesFill;
+	}
+	public boolean appliesStroke() {
+		return _appliesStroke;
+	}
+	public HDrawable applyColor(HDrawable drawable) {
+		float x = drawable.x();
+		float y = drawable.y();
+		if(_appliesFill) {
+			int baseFill = drawable.fill();
+			drawable.fill( getColor(x,y, baseFill) );
+		}
+		if(_appliesStroke) {
+			int baseStroke = drawable.stroke();
+			drawable.stroke( getColor(x,y, baseStroke) );
+		}
+		return drawable;
+	}
 
-public static class HColorPoint {
-	public float x, y, radius;
-	public int clr;
-}
+	public static class HColorPoint {
+		public float x, y, radius;
+		public int clr;
+	}
 }
 
 public static class HColorPool implements HColorist {
