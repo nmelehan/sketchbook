@@ -1,5 +1,8 @@
 public static class PCHLinearGradient extends HDrawable {
+	public static final int XAXIS = 1, YAXIS = 2;
+
 	color _startColor, _endColor;
+	int _axis;
 
 	public PCHLinearGradient createCopy() {
 		PCHLinearGradient copy = new PCHLinearGradient();
@@ -10,47 +13,51 @@ public static class PCHLinearGradient extends HDrawable {
 	}
 
 	public PCHLinearGradient() {
-
-	}
-
-	public PCHLinearGradient setGradient() {
-		// for (int i = 0; i <= _width; i++) {
-		// 	HPath line = new HPath();
-
-		// 	float inter = H.app().map(i, 0, _width, 0, 1);
-		// 	color c = H.app().lerpColor(_startColor, _endColor, inter);
-		// 	line
-		// 		.stroke(c)
-		// 		.strokeWeight(3);
-
-		// 	line
-		// 		.vertex(i, 0)
-		// 		.vertex(i, _height);
-
-		// 	this.add(line);
-	 //    }
-
-	    return this;
+		_axis = XAXIS;
 	}
 
 	public PCHLinearGradient(color startColor, color endColor) {
 		_startColor = startColor;
 		_endColor = endColor;
+		_axis = XAXIS;
+	}
 
-		setGradient();
+	public int axis() {
+		return _axis;
+	}
+
+	public PCHLinearGradient setAxis(int axis) {
+		_axis = axis;
+
+		return this;
 	}
 
 	public void draw(PGraphics g, boolean usesZ, float drawX, float drawY, float currAlphaPc) {
-		for (int i = 0; i <= _width; i++) {
-			HPath line = new HPath();
+		if (_axis == XAXIS) {
+			for (int i = 0; i <= _width; i++) {
+				HPath line = new HPath();
 
-			float inter = H.app().map(i, 0, _width, 0, 1);
-			color c = H.app().lerpColor(_startColor, _endColor, inter);
+				float inter = H.app().map(i, 0, _width, 0, 1);
+				color c = H.app().lerpColor(_startColor, _endColor, inter);
 
-			g.stroke(c);
-			g.strokeCap(SQUARE);
-			g.strokeWeight(3);
-			g.line(drawX+i, drawY, drawX+i, drawY+_height);
-	    }
+				g.stroke(c);
+				g.strokeCap(SQUARE);
+				g.strokeWeight(3);
+				g.line(drawX+i, drawY, drawX+i, drawY+_height);
+		    }
+		}
+		else if (_axis == YAXIS) {
+			for (int i = 0; i <= _height; i++) {
+				HPath line = new HPath();
+
+				float inter = H.app().map(i, 0, _height, 0, 1);
+				color c = H.app().lerpColor(_startColor, _endColor, inter);
+
+				g.stroke(c);
+				g.strokeCap(SQUARE);
+				g.strokeWeight(3);
+				g.line(drawX, drawY+i, drawX+_width, drawY+i);
+		    }
+		}
 	}
 }
