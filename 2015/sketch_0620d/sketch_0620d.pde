@@ -1,3 +1,16 @@
+PCHLinearGradient backgroundGrad;
+
+color startColor = #54C9F4;
+color endColor = #A6E2FC;
+
+int sketchWidth = 2000, sketchHeight = 2000;
+
+int cellSize = 20;
+int numCols = sketchWidth/cellSize;
+int numRows = sketchHeight/cellSize;
+
+int gradHeight = 7;
+
 void cell(HDrawable d) {
 	HDrawablePool pool = new HDrawablePool(25)
 		.autoParent(d)
@@ -15,12 +28,6 @@ void cell(HDrawable d) {
 		)
 		.requestAll();
 }
-
-PCHLinearGradient backgroundGrad;
-
-//color startColor = #0783BE;
-color startColor = #54C9F4;
-color endColor = #A6E2FC;
 
 HGroup addons(HGroup markerSeries) {
 	float addonProbabilityThreshold = .8;
@@ -55,8 +62,8 @@ HGroup darkMarkSeries() {
 	int numMarks = floor(random(2, 10));
 
 	HGroup markerSeriesLeft = new HGroup();
-	int seriesX = floor(random(10))*20;
-	int seriesY = floor(random(20))*7*5;
+	int seriesX = floor(random(numCols/2))*cellSize;
+	int seriesY = floor(random(numRows*4))*5;
 	markerSeriesLeft.loc(seriesX, seriesY);
 
 	int markerHeight = floor(random(15, 21));
@@ -64,7 +71,7 @@ HGroup darkMarkSeries() {
 
 	HGroup markerSeriesRight = new HGroup();
 	markerSeriesRight.anchorAt(H.BOTTOM | H.LEFT)
-		.loc(400-seriesX, seriesY+markerHeight)
+		.loc(sketchWidth-seriesX, seriesY+markerHeight)
 		.rotate(180);
 
 	float markerGap = 2;
@@ -93,27 +100,26 @@ HGroup darkMarkSeries() {
 HGroup markerGroup;
 
 void setup() {
-	size(800, 800);
+	size(sketchWidth, sketchHeight);
 	H.init(this).background(#FFFFFF);
 
 	backgroundGrad = new PCHLinearGradient(startColor, endColor);
 	H.add(backgroundGrad);
 	backgroundGrad
 		.setAxis(PCHLinearGradient.YAXIS)
-		.size(400, 700)
-		.loc(200, 50)
+		.size(sketchWidth, sketchHeight)
 		;
 
-	HDrawablePool cellPool = new HDrawablePool(700)
+	HDrawablePool cellPool = new HDrawablePool(numRows*numCols)
 		.autoParent(backgroundGrad)
 		.add(new HGroup())
 		.layout(
 			new HGridLayout()
 				.startX(1)
 				.startY(1)
-				.spacingX(20)
-				.spacingY(20)
-				.cols(20)
+				.spacingX(cellSize)
+				.spacingY(cellSize)
+				.cols(numCols)
 		)
 		.onCreate(new HCallback() {
 			public void run(Object obj) {
@@ -123,10 +129,10 @@ void setup() {
 		})
 		.requestAll();
 
-	for (int i = 0 ; i < 5 ; i++) {
-		int gradHeight = 7;
+	int numGradientRows = ceil(sketchHeight/(float)(gradHeight*cellSize));
+	for (int i = 0 ; i < numGradientRows ; i++) {
 		int j = 0;
-		float inter = map(i*20, 0, 700, 0, 1);
+		float inter = map(i*cellSize, 0, sketchHeight, 0, 1);
 		color gradLerp = lerpColor(startColor, endColor, inter);
 		color gradLerpFaded = color(red(gradLerp), green(gradLerp), blue(gradLerp), 25);
 		while(true) {
@@ -139,27 +145,18 @@ void setup() {
 			PCHLinearGradient grad = new PCHLinearGradient(gradStartColor, gradEndColor);
 			grad
 				.setAxis(PCHLinearGradient.YAXIS)
-				.loc(j*20, i*gradHeight*20)
+				.loc(j*cellSize, i*gradHeight*cellSize)
 				;
 			backgroundGrad.add(grad);
 
-			if (20-j <= 6) {
-				grad.size(20*(20-j), gradHeight*20);
+			if (numCols-j <= 6) {
+				grad.size(cellSize*(numCols-j), gradHeight*cellSize);
 				break;
 			}
 			else {
 				int gradWidth = (int)random(3,6);
-				grad.size(20*gradWidth, gradHeight*20);
+				grad.size(cellSize*gradWidth, gradHeight*cellSize);
 				j+=gradWidth;
-
-
-				// if (gradWidth >= 5) {
-				// PCHLinearGradient subGrad = new PCHLinearGradient(gradStartColor, gradEndColor);
-				// grad.add(subGrad);
-				// int anchor = floor(random(4));
-				// grad.setAxis(PCHLinearGradient.YAXIS)
-				// 	.size(random(3, 4)
-				// }
 			}
 		}
 	}
