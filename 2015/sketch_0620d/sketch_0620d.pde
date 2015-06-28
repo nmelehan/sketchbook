@@ -3,7 +3,7 @@ PCHLinearGradient backgroundGrad;
 color startColor = #54C9F4;
 color endColor = #A6E2FC;
 
-int sketchWidth = 2000, sketchHeight = 2000;
+int sketchWidth = 200, sketchHeight = 460;
 
 int cellSize = 20;
 int numCols = sketchWidth/cellSize;
