@@ -13,6 +13,8 @@ sketchCollection["color_lines_sketch"] = {
 
         this.processingInstance = new Processing(this.canvas, this.sketchCode);
         this.setSketchSize();
+
+        this.initComplete = true;
     },
 
     setSketchSize : function() {
