@@ -5,15 +5,15 @@
 var backgroundSketch = {};
 
 backgroundSketch.setSketchSize = function() {
-    var parentWidth = $("#slideshow").innerWidth();
-    var parentHeight = $("#slideshow").innerHeight();
+    var parentWidth = $("div#slideshow div.slide").innerWidth();
+    var parentHeight = $("div#slideshow div.slide").innerHeight();
     backgroundSketch.processingInstance.size(parentWidth, parentHeight);
     $("#background_sketch").width(parentWidth);
     $("#background_sketch").height(parentHeight);
 }
 
 $(document).ready(function() {
-    $("#slideshow").append("<canvas id='background_sketch'></canvas>");
+    $("div#slideshow div.slide").append("<canvas id='background_sketch'></canvas>");
     backgroundSketch.canvas = document.getElementById("background_sketch");
     // attaching the sketchProc function to the canvas
     backgroundSketch.processingInstance = new Processing("background_sketch", backgroundSketchCode);

@@ -20,7 +20,8 @@
 	#slideshow {
 		position:relative;
 		margin: 225px auto 0px auto; padding: 25px 25px 15px 25px;
-		width: 50%; min-width: 300px; overflow: auto;
+		width: 50%;
+		overflow: auto;
 		background-color: transparent;
 		border: 1px solid black;
 		text-shadow:
@@ -30,13 +31,10 @@
        1px 1px 0 #E66028;
 	}
 
-	canvas#background_sketch {
+	canvas.gallerysketch {
 		position: absolute;
 		top: 0;
 		left: 0;
-		width: 100%;
-		height: 100%;
-		z-index: -1;
 	}
 		</style>
 		<!--[if lt IE 9]>
@@ -44,15 +42,18 @@
 		<![endif]-->
 		<script src="processing.js" type="text/javascript"></script>
 		<script src="jquery.js" type="text/javascript"></script>
-		<script src="background_sketch.js" type="text/javascript"></script>
+		<script async src="color_lines_sketch.js" type="text/javascript"></script>
+		<script async src="sketch_gallery.js" type="text/javascript"></script>
 	</head>
 	<body>
 		<div id="slideshow" style="text-align: center;">
+			<div class="slide">
+				<img alt="color_lines_sketch" src="screenshot.png" />
+			</div>
 
-			<span style="font-size: 40pt;">popcopy</style>
-			<noscript>
-				<p>JavaScript is required to view the contents of this page.</p>
-			</noscript>
+			<div class="slide">
+				<img alt="sketch2" src="screenshot.png" />
+			</div>
 		</div>
 	</body>
 </html>
