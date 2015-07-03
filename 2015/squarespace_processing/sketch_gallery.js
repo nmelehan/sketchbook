@@ -6,6 +6,7 @@ $(document).ready(function() {
         var imgTag = $(this).children("img")[0];
 
         if (sketchCollection.hasOwnProperty(sketchName)) {
+            $(imgTag).css("visibility", "hidden");
             $(imgTag).one('load',function(){
                     sketchCollection[sketchName].init(this.parentElement);
                 })
