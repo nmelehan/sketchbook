@@ -21,7 +21,7 @@ sketchCollection["color_lines_sketch"] = {
         var parentWidth = $(this.parentElement).innerWidth();
         var parentHeight = $(this.parentElement).innerHeight();
 
-        this.processingInstance.size(parentWidth, parentHeight);
+        this.processingInstance.size(parentWidth*window.devicePixelRatio, parentHeight*window.devicePixelRatio);
 
         $(this.canvas).width(parentWidth);
         $(this.canvas).height(parentHeight);
