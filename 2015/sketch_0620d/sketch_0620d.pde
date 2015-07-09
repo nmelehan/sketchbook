@@ -1,4 +1,5 @@
 BlueCellGrid blueCellGrid;
+PCHLazyDrawable lazyBlueCellGrid;
 
 void setup() {
 	size(800, 800);
@@ -9,7 +10,7 @@ void setup() {
 		// .loc(200, 50)
 		// .anchorAt(H.CENTER)
 		;
-	PCHLazyDrawable lazyBlueCellGrid = new PCHLazyDrawable(blueCellGrid);
+	lazyBlueCellGrid = new PCHLazyDrawable(blueCellGrid);
 	H.add(lazyBlueCellGrid);
 
 	// new HRotate().target(lazyBlueCellGrid).speed(1);
@@ -17,6 +18,10 @@ void setup() {
 
 void draw() {
 	H.drawStage();
+
+	if (frameCount % 50 == 0) {
+		lazyBlueCellGrid.needsRender(true);
+	}
 }
 
 // void keyPressed() {

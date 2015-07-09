@@ -1,4 +1,5 @@
 BlueCellGrid blueCellGrid;
+PCHLazyDrawable lazyBlueCellGrid;
 
 void setup() {
 	size(800, 800);
@@ -9,7 +10,7 @@ void setup() {
 		// .loc(200, 50)
 		// .anchorAt(H.CENTER)
 		;
-	PCHLazyDrawable lazyBlueCellGrid = new PCHLazyDrawable(blueCellGrid);
+	lazyBlueCellGrid = new PCHLazyDrawable(blueCellGrid);
 	H.add(lazyBlueCellGrid);
 
 	// new HRotate().target(lazyBlueCellGrid).speed(1);
@@ -17,6 +18,10 @@ void setup() {
 
 void draw() {
 	H.drawStage();
+
+	if (frameCount % 50 == 0) {
+		lazyBlueCellGrid.needsRender(true);
+	}
 }
 
 // void keyPressed() {
@@ -118,6 +123,9 @@ public class BlueCellGrid extends HDrawable {
 		int gradWidthInGridColumns = 0;
 		int gradHeightInGridRows = 0;
 
+		PCHLinearGradient grad = new PCHLinearGradient(_startColor, _endColor)
+			.axis(PCHLinearGradient.YAXIS);
+
 		while (gradYInGridRows < numberOfGridRows()) {
 			float inter = map(gradYInGridRows*heightOfGridRowAndGap(), 0, totalHeightOfGridSpan(), 0, 1);
 			color gradLerp = H.app().lerpColor(_startColor, _endColor, inter);
@@ -137,9 +145,9 @@ public class BlueCellGrid extends HDrawable {
 
 				gradWidthInGridColumns = (numberOfGridColumns() - gradXInGridColumns) < 6 ? numberOfGridColumns() - gradXInGridColumns : (int)random(3, 6);
 
-				PCHLinearGradient grad = new PCHLinearGradient(gradStartColor, gradEndColor);
 				grad
-					.setAxis(PCHLinearGradient.YAXIS)
+					.startColor(gradStartColor)
+					.endColor(gradEndColor)
 					.loc(gradXInGridColumns*widthOfGridColumnAndGap(), gradYInGridRows*heightOfGridRowAndGap())
 					.size(widthOfGridColumnAndGap()*gradWidthInGridColumns - _gridGap, heightOfGridRowAndGap()*gradHeightInGridRows - _gridGap)
 					;
@@ -152,7 +160,7 @@ public class BlueCellGrid extends HDrawable {
 			gradXInGridColumns = 0;
 			gradYInGridRows += gradHeightInGridRows;
 		}
-	}
+	} // end -- renderTopGradients()
 
 	HGroup addons(HGroup markerSeries) {
 		float addonProbabilityThreshold = .8;
@@ -242,7 +250,7 @@ public class BlueCellGrid extends HDrawable {
 		// draw background color gradient
 		PCHLinearGradient backgroundGrad = new PCHLinearGradient(_startColor, _endColor);
 		backgroundGrad
-			.setAxis(PCHLinearGradient.YAXIS)
+			.axis(PCHLinearGradient.YAXIS)
 			.size(_width, _height)
 			;
 		backgroundGrad.draw(g, usesZ, drawX, drawY, currAlphaPc);
@@ -252,9 +260,9 @@ public class BlueCellGrid extends HDrawable {
 		float gridOffsetY = (_height-totalHeightOfGridSpan())/2;
 		renderCellGrid(g, usesZ, drawX+(int)gridOffsetX, drawY+(int)gridOffsetY, currAlphaPc);
 
-		//renderTopGradients(g, usesZ, drawX+(int)gridOffsetX, drawY+(int)gridOffsetY, currAlphaPc);
+		renderTopGradients(g, usesZ, drawX+(int)gridOffsetX, drawY+(int)gridOffsetY, currAlphaPc);
 
-		//renderAccentMarks(g, usesZ, drawX, drawY, currAlphaPc);
+		renderAccentMarks(g, usesZ, drawX, drawY, currAlphaPc);
 
 	} // end -- draw()
 
@@ -5602,18 +5610,18 @@ public static class PCHLazyDrawable extends HDrawable {
 	}
 }
 public static class PCHLinearGradient extends HDrawable {
-	public static final int XAXIS = 1, YAXIS = 2;
 
+	// Properties
+	//
+	//
+
+	public static final int XAXIS = 1, YAXIS = 2;
 	color _startColor, _endColor;
 	int _axis;
 
-	public PCHLinearGradient createCopy() {
-		PCHLinearGradient copy = new PCHLinearGradient();
-		copy._startColor = _startColor;
-		copy._endColor = _endColor;
-		copy.copyPropertiesFrom(this);
-		return copy;
-	}
+	// Constructors
+	//
+	//
 
 	public PCHLinearGradient() {
 		_axis = XAXIS;
@@ -5625,14 +5633,50 @@ public static class PCHLinearGradient extends HDrawable {
 		_axis = XAXIS;
 	}
 
+	// Synthesizers
+	//
+	//
+
 	public int axis() {
 		return _axis;
 	}
 
-	public PCHLinearGradient setAxis(int axis) {
+	public PCHLinearGradient axis(int axis) {
 		_axis = axis;
 
 		return this;
+	}
+
+	public color startColor() {
+		return _startColor;
+	}
+
+	public PCHLinearGradient startColor(color startColor) {
+		_startColor = startColor;
+
+		return this;
+	}
+
+	public color endColor() {
+		return _startColor;
+	}
+
+	public PCHLinearGradient endColor(color endColor) {
+		_endColor = endColor;
+
+		return this;
+	}
+
+	// Subclass methods
+	//
+	//
+
+	public PCHLinearGradient createCopy() {
+		PCHLinearGradient copy = new PCHLinearGradient();
+		copy._startColor = _startColor;
+		copy._endColor = _endColor;
+		copy.copyPropertiesFrom(this);
+		return copy;
 	}
 
 	public void draw(PGraphics g, boolean usesZ, float drawX, float drawY, float currAlphaPc) {
