@@ -5,7 +5,7 @@ void setup() {
 	H.init(this).background(#FFFFFF);
 
 	blueCellGrid = new BlueCellGrid();
-	blueCellGrid.size(800, 400)
+	blueCellGrid.size(800, 800)
 		// .loc(200, 50)
 		// .anchorAt(H.CENTER)
 		;

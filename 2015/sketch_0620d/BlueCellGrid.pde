@@ -44,6 +44,8 @@ public class BlueCellGrid extends HDrawable {
 		return (heightOfGridRow()+_gridGap)*numberOfGridRows() - _gridGap;
 	}
 
+	// Rendering subroutines
+
 	void renderCellGrid(PGraphics g, boolean usesZ, float drawX, float drawY, float currAlphaPc) {
 
 		HRect cellRect = new HRect(_cellSize, _cellSize);
@@ -95,7 +97,7 @@ public class BlueCellGrid extends HDrawable {
 
 				PCHLinearGradient grad = new PCHLinearGradient(gradStartColor, gradEndColor);
 				grad
-					.setAxis(PCHLinearGradient.YAXIS)
+					.axis(PCHLinearGradient.YAXIS)
 					.loc(gradXInGridColumns*widthOfGridColumnAndGap(), gradYInGridRows*heightOfGridRowAndGap())
 					.size(widthOfGridColumnAndGap()*gradWidthInGridColumns - _gridGap, heightOfGridRowAndGap()*gradHeightInGridRows - _gridGap)
 					;
@@ -110,6 +112,78 @@ public class BlueCellGrid extends HDrawable {
 		}
 	}
 
+	HGroup addons(HGroup markerSeries) {
+		float addonProbabilityThreshold = .8;
+
+		for (HDrawable s : markerSeries) {
+			HGroup series = (HGroup)s;
+			HGroup addons = new HGroup();
+			for (HDrawable m : series) {
+				HRect marker = (HRect)m;
+				boolean addonIsAbove = (random(1) > .5) ? true : false;
+				if (random(1)>addonProbabilityThreshold) {
+					HRect extension = marker.createCopy();
+					float newHeight = marker.height()*random(.1,.9);
+					extension.height(newHeight);
+					if (addonIsAbove) {
+						extension.y(-1*newHeight);
+					}
+					else {
+						extension.y(marker.height());
+					}
+					addons.add(extension);
+				}
+			}
+			series.add(addons);
+		}
+
+		return markerSeries;
+	}
+
+	public void renderAccentMarkSeries(PGraphics g, boolean usesZ, float drawX, float drawY, float currAlphaPc) {
+		int numMarks = floor(random(2, 10));
+
+		HGroup markerSeriesLeft = new HGroup();
+		int seriesX = floor(random(10))*widthOfGridColumnAndGap();
+		int seriesY = floor(random(20))*7*5;
+		markerSeriesLeft.loc(seriesX, seriesY);
+
+		int markerHeight = floor(random(15, 21));
+		int markerWidth = 4-(markerHeight-19);
+
+		HGroup markerSeriesRight = new HGroup();
+		markerSeriesRight.anchorAt(H.BOTTOM | H.LEFT)
+			.loc(_width-seriesX, seriesY+markerHeight)
+			.rotate(180);
+
+		float markerGap = 2;
+		float markerAddonVerticalGap = floor(random(3)) * 5;
+		float xPos = 0;
+		for (int i = 0; i < numMarks; i++) {
+			xPos+=(markerWidth+markerGap);
+			HRect markerRect = new HRect(markerWidth, markerHeight);
+			markerRect
+				.loc(xPos, 0)
+				.fill(#4293D4)
+				.noStroke();
+			markerSeriesLeft.add(markerRect);
+			markerSeriesRight.add(markerRect.createCopy());
+		}
+
+		HGroup markerSeries = new HGroup();
+		markerSeries.add(markerSeriesLeft);
+		markerSeries.add(markerSeriesRight);
+
+		addons(markerSeries);
+
+		markerSeries.paintAll(g, usesZ, currAlphaPc);
+	}
+
+	public void renderAccentMarks(PGraphics g, boolean usesZ, float drawX, float drawY, float currAlphaPc) {
+		 for (int i = 0; i < 10+random(10); i++) {
+			renderAccentMarkSeries(g, usesZ, drawX, drawY, currAlphaPc);
+		}
+	}
 
 	// Subclass methods
 	//
@@ -126,7 +200,7 @@ public class BlueCellGrid extends HDrawable {
 		// draw background color gradient
 		PCHLinearGradient backgroundGrad = new PCHLinearGradient(_startColor, _endColor);
 		backgroundGrad
-			.setAxis(PCHLinearGradient.YAXIS)
+			.axis(PCHLinearGradient.YAXIS)
 			.size(_width, _height)
 			;
 		backgroundGrad.draw(g, usesZ, drawX, drawY, currAlphaPc);
@@ -137,6 +211,8 @@ public class BlueCellGrid extends HDrawable {
 		renderCellGrid(g, usesZ, drawX+(int)gridOffsetX, drawY+(int)gridOffsetY, currAlphaPc);
 
 		renderTopGradients(g, usesZ, drawX+(int)gridOffsetX, drawY+(int)gridOffsetY, currAlphaPc);
+
+		renderAccentMarks(g, usesZ, drawX, drawY, currAlphaPc);
 
 	} // end -- draw()
 

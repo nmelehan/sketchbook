@@ -1,16 +1,16 @@
 public static class PCHLinearGradient extends HDrawable {
-	public static final int XAXIS = 1, YAXIS = 2;
 
+	// Properties
+	//
+	//
+
+	public static final int XAXIS = 1, YAXIS = 2;
 	color _startColor, _endColor;
 	int _axis;
 
-	public PCHLinearGradient createCopy() {
-		PCHLinearGradient copy = new PCHLinearGradient();
-		copy._startColor = _startColor;
-		copy._endColor = _endColor;
-		copy.copyPropertiesFrom(this);
-		return copy;
-	}
+	// Constructors
+	//
+	//
 
 	public PCHLinearGradient() {
 		_axis = XAXIS;
@@ -22,14 +22,50 @@ public static class PCHLinearGradient extends HDrawable {
 		_axis = XAXIS;
 	}
 
+	// Synthesizers
+	//
+	//
+
 	public int axis() {
 		return _axis;
 	}
 
-	public PCHLinearGradient setAxis(int axis) {
+	public PCHLinearGradient axis(int axis) {
 		_axis = axis;
 
 		return this;
+	}
+
+	public color startColor() {
+		return _startColor;
+	}
+
+	public PCHLinearGradient startColor(color startColor) {
+		_startColor = startColor;
+
+		return this;
+	}
+
+	public color endColor() {
+		return _startColor;
+	}
+
+	public PCHLinearGradient endColor(color endColor) {
+		_endColor = endColor;
+
+		return this;
+	}
+
+	// Subclass methods
+	//
+	//
+
+	public PCHLinearGradient createCopy() {
+		PCHLinearGradient copy = new PCHLinearGradient();
+		copy._startColor = _startColor;
+		copy._endColor = _endColor;
+		copy.copyPropertiesFrom(this);
+		return copy;
 	}
 
 	public void draw(PGraphics g, boolean usesZ, float drawX, float drawY, float currAlphaPc) {
