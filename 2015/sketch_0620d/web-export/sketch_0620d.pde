@@ -5,8 +5,8 @@ void setup() {
 	H.init(this).background(#FFFFFF);
 
 	blueCellGrid = new BlueCellGrid();
-	blueCellGrid.size(400, 700)
-		.loc(200, 50)
+	blueCellGrid.size(800, 800)
+		// .loc(200, 50)
 		// .anchorAt(H.CENTER)
 		;
 	PCHLazyDrawable lazyBlueCellGrid = new PCHLazyDrawable(blueCellGrid);
@@ -47,24 +47,6 @@ public static class BlueCellGrid extends HDrawable {
 	private int _gridGap = 2;
 	private int _numberOfCellsPerGridSide = 5;
 
-	// void cell(HDrawable d) {
-	// 	HDrawablePool pool = new HDrawablePool(25)
-	// 		.autoParent(d)
-	// 		.add(new HRect(3, 3)
-	// 			.fill(#ffffff)
-	// 			.noStroke()
-	// 			.alpha(100))
-	// 		.layout(
-	// 			new HGridLayout()
-	// 				.startX(1)
-	// 				.startY(1)
-	// 				.spacingX(3.75)
-	// 				.spacingY(3.75)
-	// 				.cols(5)
-	// 		)
-	// 		.requestAll();
-	// }
-
 	// Class methods
 	//
 	//
@@ -82,118 +64,40 @@ public static class BlueCellGrid extends HDrawable {
 	}
 
 	int numberOfGridRows() {
-		return (int)Math.floor(_height/heightOfGridRow());
+		return (int)Math.floor((_height+_gridGap)/(heightOfGridRow()+_gridGap));
 	}
 
-	PVector pointOffsetForGridCoordinates(int gridRow, int gridColumn, int cellRow, int cellColumn) {
-		float offsetX = gridColumn * (widthOfGridColumn() + _gridGap) + cellColumn * (_cellSize+_cellGap);
-		float offsetY = gridRow * (heightOfGridRow() + _gridGap) + cellRow * (_cellSize+_cellGap);
-
-		return new PVector(offsetX, offsetY);
+	int totalWidthOfGridSpan() {
+		return (widthOfGridColumn()+_gridGap)*numberOfGridColumns() - _gridGap;
 	}
 
-	void locateCell(HRect cellRect, PGraphics g, boolean usesZ, float drawX, float drawY, float currAlphaPc) {
-
-		int currentGridRow = cellRect.numI("currentGridRow");
-		int currentGridColumn = cellRect.numI("currentGridColumn");
-		int currentCellRow = cellRect.numI("currentCellRow");
-		int currentCellColumn = cellRect.numI("currentCellColumn");
-
-		// println("locate, currentGridRow: " + currentGridRow + ", currentGridColumn: " + currentGridColumn);
-		// println("locate, currentCellRow: " + currentCellRow + ", currentCellColumn: " + currentCellColumn);
-
-		PVector offset = pointOffsetForGridCoordinates(currentGridRow, currentGridColumn, currentCellRow, currentCellColumn);
-
-		cellRect.loc(offset.x, offset.y);
-		cellRect.draw(g, usesZ, drawX + cellRect.x(), drawY + cellRect.y(), currAlphaPc);
-
-		currentCellColumn = currentCellColumn < _numberOfCellsPerGridSide-1 ? currentCellColumn + 1 : 0;
-		currentCellRow = currentCellColumn == 0 ? currentCellRow + 1 : currentCellRow;
-
-		if (currentCellRow < _numberOfCellsPerGridSide) {
-			cellRect.num("currentCellRow", currentCellRow);
-			cellRect.num("currentCellColumn", currentCellColumn);
-
-			locateCell(cellRect, g, usesZ, drawX, drawY, currAlphaPc);
-		}
-		else if (currentCellRow >= _numberOfCellsPerGridSide) {
-			// start a new grid
-			currentCellRow = 0;
-			currentCellColumn = 0;
-
-			currentGridColumn = currentGridColumn < numberOfGridColumns()-1 ? currentGridColumn + 1 : 0;
-			currentGridRow = currentGridColumn == 0 ? currentGridRow + 1 : currentGridRow;
-
-			if (currentGridRow < 4 /*numberOfGridRows()*/) {
-				cellRect.num("currentCellRow", currentCellRow);
-				cellRect.num("currentCellColumn", currentCellColumn);
-				cellRect.num("currentGridRow", currentGridRow);
-				cellRect.num("currentGridColumn", currentGridColumn);
-
-				locateCell(cellRect, g, usesZ, drawX, drawY, currAlphaPc);
-			}
-		}
-
-	} // end -- locateCell()
+	int totalHeightOfGridSpan() {
+		return (heightOfGridRow()+_gridGap)*numberOfGridRows() - _gridGap;
+	}
 
 	void renderCellGrid(PGraphics g, boolean usesZ, float drawX, float drawY, float currAlphaPc) {
 
-		HRect cellRect = new HRect(3, 3);
+		HRect cellRect = new HRect(_cellSize, _cellSize);
 		cellRect
-				.fill(0)
+				.fill(255)
 				.noStroke()
-				.alpha(100);
-		cellRect.num("currentGridRow", 0);
-		cellRect.num("currentGridColumn", 0);
-		cellRect.num("currentCellRow", 0);
-		cellRect.num("currentCellColumn", 0);
+				.alpha(70);
 
-		locateCell(cellRect, g, usesZ, drawX, drawY, currAlphaPc);
+		for (int currentGridColumn = 0; currentGridColumn < numberOfGridColumns(); currentGridColumn++) {
+			for (int currentGridRow = 0; currentGridRow < numberOfGridRows(); currentGridRow++) {
+				for (int currentCellColumn = 0; currentCellColumn < _numberOfCellsPerGridSide; currentCellColumn++) {
+					for (int currentCellRow = 0; currentCellRow < _numberOfCellsPerGridSide; currentCellRow++) {
+						float offsetX = currentGridColumn * (widthOfGridColumn() + _gridGap) + currentCellColumn * (_cellSize+_cellGap);
+						float offsetY = currentGridRow * (heightOfGridRow() + _gridGap) + currentCellRow * (_cellSize+_cellGap);
 
-		println("finished rendering grid");
-		println(_width);
-		println(widthOfGridColumn());
-		println(numberOfGridColumns());
+						cellRect.loc(offsetX, offsetY);
+						cellRect.draw(g, usesZ, drawX + cellRect.x(), drawY + cellRect.y(), currAlphaPc);
+					}
+				}
+			}
+		}
 
 	} // end -- renderCellGrid()
-
-
-	// void renderCellGrid(PGraphics g, boolean usesZ, float drawX, float drawY, float currAlphaPc) {
-
-	// 	// HRect cellRect = new HRect(3, 3);
-	// 	// cellRect
-	// 	// 		.fill(0)
-	// 	// 		.noStroke()
-	// 	// 		.alpha(100);
-	// 	// cellRect.num("currentGridRow", 0);
-	// 	// cellRect.num("currentGridColumn", 0);
-	// 	// cellRect.num("currentCellRow", 0);
-	// 	// cellRect.num("currentCellColumn", 0);
-
-	// 	// locateCell(cellRect, g, usesZ, drawX, drawY, currAlphaPc);
-
-	// 	// println("finished rendering grid");
-
-	// 	HDrawablePool cellPool = new HDrawablePool(700)
-	// 		.autoParent(backgroundGrad)
-	// 		.add(new HGroup())
-	// 		.layout(
-	// 			new HGridLayout()
-	// 				.startX(1)
-	// 				.startY(1)
-	// 				.spacingX(20)
-	// 				.spacingY(20)
-	// 				.cols(20)
-	// 		)
-	// 		.onCreate(new HCallback() {
-	// 			public void run(Object obj) {
-	// 				HGroup d = (HGroup)obj;
-	// 				cell(d);
-	// 			}
-	// 		})
-	// 		.requestAll();
-
-	// } // end -- renderCellGrid()
 
 
 	// Subclass methods
@@ -220,7 +124,9 @@ public static class BlueCellGrid extends HDrawable {
 		backgroundGrad.draw(g, usesZ, drawX, drawY, currAlphaPc);
 
 		// draw cell grid
-		renderCellGrid(g, usesZ, drawX, drawY, currAlphaPc);
+		float gridOffsetX = (_width-totalWidthOfGridSpan())/2;
+		float gridOffsetY = (_height-totalHeightOfGridSpan())/2;
+		renderCellGrid(g, usesZ, drawX+(int)gridOffsetX, drawY+(int)gridOffsetY, currAlphaPc);
 
 	} // end -- draw()
 
@@ -5555,7 +5461,6 @@ public static class PCHLazyDrawable extends HDrawable {
 
 	public void draw(PGraphics g, boolean usesZ, float drawX, float drawY, float currAlphaPc) {
 		if (needsRender()) {
-			println("rendering");
 			_graphics.beginDraw();
 			_graphics.background(H.CLEAR);
 			_drawable.draw(_graphics, usesZ, drawX, drawY, currAlphaPc);

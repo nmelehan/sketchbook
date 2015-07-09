@@ -101,7 +101,6 @@ public static class PCHLazyDrawable extends HDrawable {
 
 	public void draw(PGraphics g, boolean usesZ, float drawX, float drawY, float currAlphaPc) {
 		if (needsRender()) {
-			println("rendering");
 			_graphics.beginDraw();
 			_graphics.background(H.CLEAR);
 			_drawable.draw(_graphics, usesZ, drawX, drawY, currAlphaPc);

@@ -35,7 +35,7 @@ public static class BlueCellGrid extends HDrawable {
 
 	void renderCellGrid(PGraphics g, boolean usesZ, float drawX, float drawY, float currAlphaPc) {
 
-		HRect cellRect = new HRect(_cellSize);
+		HRect cellRect = new HRect(_cellSize, _cellSize);
 		cellRect
 				.fill(255)
 				.noStroke()
@@ -47,6 +47,7 @@ public static class BlueCellGrid extends HDrawable {
 					for (int currentCellRow = 0; currentCellRow < _numberOfCellsPerGridSide; currentCellRow++) {
 						float offsetX = currentGridColumn * (widthOfGridColumn() + _gridGap) + currentCellColumn * (_cellSize+_cellGap);
 						float offsetY = currentGridRow * (heightOfGridRow() + _gridGap) + currentCellRow * (_cellSize+_cellGap);
+
 						cellRect.loc(offsetX, offsetY);
 						cellRect.draw(g, usesZ, drawX + cellRect.x(), drawY + cellRect.y(), currAlphaPc);
 					}
