@@ -19,9 +19,9 @@ void setup() {
 void draw() {
 	H.drawStage();
 
-	if (frameCount % 50 == 0) {
-		lazyBlueCellGrid.needsRender(true);
-	}
+	// if (frameCount % 50 == 0) {
+	// 	lazyBlueCellGrid.needsRender(true);
+	// }
 }
 
 // void keyPressed() {
