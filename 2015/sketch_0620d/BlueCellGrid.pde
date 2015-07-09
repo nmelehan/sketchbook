@@ -25,83 +25,6 @@ public static class BlueCellGrid extends HDrawable {
 		return (int)Math.floor((_height+_gridGap)/(heightOfGridRow()+_gridGap));
 	}
 
-	// PVector pointOffsetForGridCoordinates(int gridRow, int gridColumn, int cellRow, int cellColumn) {
-	// 	float offsetX = gridColumn * (widthOfGridColumn() + _gridGap) + cellColumn * (_cellSize+_cellGap);
-	// 	float offsetY = gridRow * (heightOfGridRow() + _gridGap) + cellRow * (_cellSize+_cellGap);
-
-	// 	return new PVector(offsetX, offsetY);
-	// }
-
-	// void locateCell(HRect cellRect, PGraphics g, boolean usesZ, float drawX, float drawY, float currAlphaPc) {
-
-	// 	int currentGridRow = cellRect.numI("currentGridRow");
-	// 	int currentGridColumn = cellRect.numI("currentGridColumn");
-	// 	int currentCellRow = cellRect.numI("currentCellRow");
-	// 	int currentCellColumn = cellRect.numI("currentCellColumn");
-
-	// 	// println("locate, currentGridRow: " + currentGridRow + ", currentGridColumn: " + currentGridColumn);
-	// 	// println("locate, currentCellRow: " + currentCellRow + ", currentCellColumn: " + currentCellColumn);
-
-	// 	// PVector offset = pointOffsetForGridCoordinates(currentGridRow, currentGridColumn, currentCellRow, currentCellColumn);
-	// 	float offsetX = currentGridColumn * (widthOfGridColumn() + _gridGap) + currentCellColumn * (_cellSize+_cellGap);
-	// 	float offsetY = currentGridRow * (heightOfGridRow() + _gridGap) + currentCellRow * (_cellSize+_cellGap);
-	// 	cellRect.loc(offsetX, offsetY);
-
-	// 	// cellRect.loc(offset.x, offset.y);
-	// 	cellRect.draw(g, usesZ, drawX + cellRect.x(), drawY + cellRect.y(), currAlphaPc);
-
-	// 	currentCellColumn = currentCellColumn < _numberOfCellsPerGridSide-1 ? currentCellColumn + 1 : 0;
-	// 	currentCellRow = currentCellColumn == 0 ? currentCellRow + 1 : currentCellRow;
-
-	// 	if (currentCellRow < _numberOfCellsPerGridSide) {
-	// 		cellRect.num("currentCellRow", currentCellRow);
-	// 		cellRect.num("currentCellColumn", currentCellColumn);
-
-	// 		locateCell(cellRect, g, usesZ, drawX, drawY, currAlphaPc);
-	// 	}
-	// 	else if (currentCellRow >= _numberOfCellsPerGridSide) {
-	// 		// start a new grid
-	// 		currentCellRow = 0;
-	// 		currentCellColumn = 0;
-
-	// 		currentGridColumn = currentGridColumn < 10/*numberOfGridColumns()-1*/ ? currentGridColumn + 1 : 0;
-	// 		currentGridRow = currentGridColumn == 0 ? currentGridRow + 1 : currentGridRow;
-
-	// 		if (currentGridRow < 13 /*numberOfGridRows()*/) {
-	// 			cellRect.num("currentCellRow", currentCellRow);
-	// 			cellRect.num("currentCellColumn", currentCellColumn);
-	// 			cellRect.num("currentGridRow", currentGridRow);
-	// 			cellRect.num("currentGridColumn", currentGridColumn);
-
-	// 			locateCell(cellRect, g, usesZ, drawX, drawY, currAlphaPc);
-	// 		}
-	// 	}
-
-	// } // end -- locateCell()
-
-	// void renderCellGrid(PGraphics g, boolean usesZ, float drawX, float drawY, float currAlphaPc) {
-
-	// 	HRect cellRect = new HRect(3, 3);
-	// 	cellRect
-	// 			.fill(0)
-	// 			.noStroke()
-	// 			.alpha(100);
-	// 	cellRect.num("currentGridRow", 0);
-	// 	cellRect.num("currentGridColumn", 0);
-	// 	cellRect.num("currentCellRow", 0);
-	// 	cellRect.num("currentCellColumn", 0);
-
-	// 	locateCell(cellRect, g, usesZ, drawX, drawY, currAlphaPc);
-
-	// 	println("finished rendering grid");
-	// 	println(_width);
-	// 	println(widthOfGridColumn());
-	// 	println(numberOfGridColumns());
-
-	// 	println(numberOfGridRows());
-
-	// } // end -- renderCellGrid()
-
 	void renderCellGrid(PGraphics g, boolean usesZ, float drawX, float drawY, float currAlphaPc) {
 
 		HRect cellRect = new HRect(_cellSize);
@@ -117,8 +40,6 @@ public static class BlueCellGrid extends HDrawable {
 						float offsetX = currentGridColumn * (widthOfGridColumn() + _gridGap) + currentCellColumn * (_cellSize+_cellGap);
 						float offsetY = currentGridRow * (heightOfGridRow() + _gridGap) + currentCellRow * (_cellSize+_cellGap);
 						cellRect.loc(offsetX, offsetY);
-
-						// cellRect.loc(offset.x, offset.y);
 						cellRect.draw(g, usesZ, drawX + cellRect.x(), drawY + cellRect.y(), currAlphaPc);
 					}
 				}
