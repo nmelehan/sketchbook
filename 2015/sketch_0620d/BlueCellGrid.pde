@@ -1,9 +1,12 @@
-public static class BlueCellGrid extends HDrawable {
+public class BlueCellGrid extends HDrawable {
 
 	private int _cellSize = 3;
 	private int _cellGap = 1;
 	private int _gridGap = 2;
 	private int _numberOfCellsPerGridSide = 5;
+
+	color _startColor = #54C9F4;
+	color _endColor = #A6E2FC;
 
 	// Class methods
 	//
@@ -13,8 +16,16 @@ public static class BlueCellGrid extends HDrawable {
 		return (_cellSize+_cellGap)*_numberOfCellsPerGridSide - _cellGap;
 	}
 
+	int widthOfGridColumnAndGap() {
+		return (_cellSize+_cellGap)*_numberOfCellsPerGridSide - _cellGap + _gridGap;
+	}
+
 	int heightOfGridRow() {
 		return (_cellSize+_cellGap)*_numberOfCellsPerGridSide - _cellGap;
+	}
+
+	int heightOfGridRowAndGap() {
+		return (_cellSize+_cellGap)*_numberOfCellsPerGridSide - _cellGap + _gridGap;
 	}
 
 	int numberOfGridColumns() {
@@ -57,6 +68,48 @@ public static class BlueCellGrid extends HDrawable {
 
 	} // end -- renderCellGrid()
 
+	void renderTopGradients(PGraphics g, boolean usesZ, float drawX, float drawY, float currAlphaPc) {
+		int gradXInGridColumns = 0;
+		int gradYInGridRows = 0;
+		int gradWidthInGridColumns = 0;
+		int gradHeightInGridRows = 0;
+
+		while (gradYInGridRows < numberOfGridRows()) {
+			float inter = map(gradYInGridRows*heightOfGridRowAndGap(), 0, totalHeightOfGridSpan(), 0, 1);
+			color gradLerp = H.app().lerpColor(_startColor, _endColor, inter);
+			color gradLerpFaded = color(red(gradLerp), green(gradLerp), blue(gradLerp), 25);
+
+			gradHeightInGridRows = min(6, numberOfGridRows() - gradYInGridRows);
+
+			while(gradXInGridColumns < numberOfGridColumns()) {
+				color gradStartColor = color(255, 25);
+				color gradEndColor = gradLerpFaded;
+
+				// randomly point gradient up or down
+				if (random(1) > .5) {
+					gradStartColor = gradLerpFaded;
+					gradEndColor = color(255, 25);
+				}
+
+				gradWidthInGridColumns = (numberOfGridColumns() - gradXInGridColumns) < 6 ? numberOfGridColumns() - gradXInGridColumns : (int)random(3, 6);
+
+				PCHLinearGradient grad = new PCHLinearGradient(gradStartColor, gradEndColor);
+				grad
+					.setAxis(PCHLinearGradient.YAXIS)
+					.loc(gradXInGridColumns*widthOfGridColumnAndGap(), gradYInGridRows*heightOfGridRowAndGap())
+					.size(widthOfGridColumnAndGap()*gradWidthInGridColumns - _gridGap, heightOfGridRowAndGap()*gradHeightInGridRows - _gridGap)
+					;
+
+				grad.draw(g, usesZ, drawX + grad.x(), drawY + grad.y(), currAlphaPc);
+
+				gradXInGridColumns += gradWidthInGridColumns;
+			}
+
+			gradXInGridColumns = 0;
+			gradYInGridRows += gradHeightInGridRows;
+		}
+	}
+
 
 	// Subclass methods
 	//
@@ -70,11 +123,8 @@ public static class BlueCellGrid extends HDrawable {
 
 	public void draw(PGraphics g, boolean usesZ, float drawX, float drawY, float currAlphaPc) {
 
-		color startColor = #54C9F4;
-		color endColor = #A6E2FC;
-
 		// draw background color gradient
-		PCHLinearGradient backgroundGrad = new PCHLinearGradient(startColor, endColor);
+		PCHLinearGradient backgroundGrad = new PCHLinearGradient(_startColor, _endColor);
 		backgroundGrad
 			.setAxis(PCHLinearGradient.YAXIS)
 			.size(_width, _height)
@@ -85,6 +135,8 @@ public static class BlueCellGrid extends HDrawable {
 		float gridOffsetX = (_width-totalWidthOfGridSpan())/2;
 		float gridOffsetY = (_height-totalHeightOfGridSpan())/2;
 		renderCellGrid(g, usesZ, drawX+(int)gridOffsetX, drawY+(int)gridOffsetY, currAlphaPc);
+
+		renderTopGradients(g, usesZ, drawX+(int)gridOffsetX, drawY+(int)gridOffsetY, currAlphaPc);
 
 	} // end -- draw()
 
