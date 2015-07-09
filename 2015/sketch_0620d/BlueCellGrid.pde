@@ -82,18 +82,18 @@ public class BlueCellGrid extends HDrawable {
 		while (gradYInGridRows < numberOfGridRows()) {
 			float inter = map(gradYInGridRows*heightOfGridRowAndGap(), 0, totalHeightOfGridSpan(), 0, 1);
 			color gradLerp = H.app().lerpColor(_startColor, _endColor, inter);
-			color gradLerpFaded = color(red(gradLerp), green(gradLerp), blue(gradLerp), 25);
+			color gradLerpFaded = color(red(gradLerp), green(gradLerp), blue(gradLerp), random(25, 75));
 
 			gradHeightInGridRows = min(6, numberOfGridRows() - gradYInGridRows);
 
 			while(gradXInGridColumns < numberOfGridColumns()) {
-				color gradStartColor = color(255, 25);
+				color gradStartColor = color(255, random(25, 75));
 				color gradEndColor = gradLerpFaded;
 
 				// randomly point gradient up or down
 				if (random(1) > .5) {
 					gradStartColor = gradLerpFaded;
-					gradEndColor = color(255, 25);
+					gradEndColor = color(255, random(25, 75));
 				}
 
 				gradWidthInGridColumns = (numberOfGridColumns() - gradXInGridColumns) < 6 ? numberOfGridColumns() - gradXInGridColumns : (int)random(3, 6);
