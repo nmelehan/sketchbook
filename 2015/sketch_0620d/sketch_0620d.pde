@@ -5,8 +5,8 @@ void setup() {
 	H.init(this).background(#FFFFFF);
 
 	blueCellGrid = new BlueCellGrid();
-	blueCellGrid.size(400, 700)
-		.loc(200, 50)
+	blueCellGrid.size(800, 800)
+		// .loc(200, 50)
 		// .anchorAt(H.CENTER)
 		;
 	PCHLazyDrawable lazyBlueCellGrid = new PCHLazyDrawable(blueCellGrid);

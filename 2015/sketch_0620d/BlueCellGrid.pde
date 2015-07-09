@@ -25,13 +25,21 @@ public static class BlueCellGrid extends HDrawable {
 		return (int)Math.floor((_height+_gridGap)/(heightOfGridRow()+_gridGap));
 	}
 
+	int totalWidthOfGridSpan() {
+		return (widthOfGridColumn()+_gridGap)*numberOfGridColumns() - _gridGap;
+	}
+
+	int totalHeightOfGridSpan() {
+		return (heightOfGridRow()+_gridGap)*numberOfGridRows() - _gridGap;
+	}
+
 	void renderCellGrid(PGraphics g, boolean usesZ, float drawX, float drawY, float currAlphaPc) {
 
 		HRect cellRect = new HRect(_cellSize);
 		cellRect
-				.fill(0)
+				.fill(255)
 				.noStroke()
-				.alpha(100);
+				.alpha(70);
 
 		for (int currentGridColumn = 0; currentGridColumn < numberOfGridColumns(); currentGridColumn++) {
 			for (int currentGridRow = 0; currentGridRow < numberOfGridRows(); currentGridRow++) {
@@ -73,7 +81,9 @@ public static class BlueCellGrid extends HDrawable {
 		backgroundGrad.draw(g, usesZ, drawX, drawY, currAlphaPc);
 
 		// draw cell grid
-		renderCellGrid(g, usesZ, drawX, drawY, currAlphaPc);
+		float gridOffsetX = (_width-totalWidthOfGridSpan())/2;
+		float gridOffsetY = (_height-totalHeightOfGridSpan())/2;
+		renderCellGrid(g, usesZ, drawX+(int)gridOffsetX, drawY+(int)gridOffsetY, currAlphaPc);
 
 	} // end -- draw()
 
