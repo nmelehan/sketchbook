@@ -1,106 +1,230 @@
-void cell(HDrawable d) {
-	HDrawablePool pool = new HDrawablePool(25)
-		.autoParent(d)
-		.add(new HRect(3, 3)
-			.fill(#ffffff)
-			.noStroke()
-			.alpha(100))
-		.layout(
-			new HGridLayout()
-				.startX(1)
-				.startY(1)
-				.spacingX(3.75)
-				.spacingY(3.75)
-				.cols(5)
-		)
-		.requestAll();
-}
-
-PCHLinearGradient backgroundGrad;
-
-color startColor = #54C9F4;
-color endColor = #A6E2FC;
-
-HRect cellRect;
-float tweenEase = .2;
-
-void locateCell(HRect cellRect) {
-	int cellRow = cellRect.numI("currentCellRow");
-	int cellCol = cellRect.numI("currentCellColumn");
-
-	cellRect.loc(cellCol * 3.75, cellRow * 3.75);
-
-	cellCol = cellCol < 4 ? cellCol + 1 : 0;
-	cellRow = cellCol == 0 ? cellRow + 1 : cellRow;
-	//if (cellRow < 20) {
-		cellRect.num("currentCellRow", cellRow);
-		cellRect.num("currentCellColumn", cellCol);
-	//}
-}
-
-HCanvas cellCanvas;
-
-void renderCellGrid() {
-	cellRect = new HRect(3, 3);
-	cellRect
-			.fill(0)
-			.noStroke()
-			.alpha(100);
-	cellRect.num("currentGridRow", 0);
-	cellRect.num("currentGridColumn", 0);
-	cellRect.num("currentCellRow", 0);
-	cellRect.num("currentCellColumn", 0);
-	cellCanvas.add(cellRect);
-
-	locateCell(cellRect);
-}
-
-HGroup markerGroup;
+BlueCellGrid blueCellGrid;
 
 void setup() {
 	size(800, 800);
 	H.init(this).background(#FFFFFF);
 
-	// backgroundGrad = new PCHLinearGradient(startColor, endColor);
-	// H.add(backgroundGrad);
-	// backgroundGrad
-	// 	.setAxis(PCHLinearGradient.YAXIS)
-	// 	.size(400, 700)
-	// 	.loc(200, 50)
-	// 	;
+	blueCellGrid = new BlueCellGrid();
+	blueCellGrid.size(400, 700)
+		.loc(200, 50)
+		// .anchorAt(H.CENTER)
+		;
+	PCHLazyDrawable lazyBlueCellGrid = new PCHLazyDrawable(blueCellGrid);
+	H.add(lazyBlueCellGrid);
 
-	cellCanvas = new HCanvas().autoClear(false);
-	H.add(cellCanvas);
-
-	renderCellGrid();
+	// new HRotate().target(lazyBlueCellGrid).speed(1);
 }
 
 void draw() {
-	locateCell(cellRect);
 	H.drawStage();
 }
 
-void keyPressed() {
-	if (key == 'p') {
-		saveFrame();
+// void keyPressed() {
+// 	if (key == 'p') {
+// 		saveFrame();
+// 	}
+// 	if (key == 'c') {
+// 		for (HDrawable child : markerGroup) {
+// 			markerGroup.remove(child);
+// 		}
+// 	}
+// 	if (key == 'g') {
+// 		// markerGroup.add(darkMarkSeries());
+// 	}
+// 	if (key == 's') {
+// 		// for (int i = 0; i < 10+random(10); i++) {
+// 		// 	markerGroup.add(darkMarkSeries());
+// 		// }
+// 	}
+// }
+
+
+
+public static class BlueCellGrid extends HDrawable {
+
+	private int _cellSize = 3;
+	private int _cellGap = 1;
+	private int _gridGap = 2;
+	private int _numberOfCellsPerGridSide = 5;
+
+	// void cell(HDrawable d) {
+	// 	HDrawablePool pool = new HDrawablePool(25)
+	// 		.autoParent(d)
+	// 		.add(new HRect(3, 3)
+	// 			.fill(#ffffff)
+	// 			.noStroke()
+	// 			.alpha(100))
+	// 		.layout(
+	// 			new HGridLayout()
+	// 				.startX(1)
+	// 				.startY(1)
+	// 				.spacingX(3.75)
+	// 				.spacingY(3.75)
+	// 				.cols(5)
+	// 		)
+	// 		.requestAll();
+	// }
+
+	// Class methods
+	//
+	//
+
+	int widthOfGridColumn() {
+		return (_cellSize+_cellGap)*_numberOfCellsPerGridSide - _cellGap;
 	}
-	if (key == 'c') {
-		for (HDrawable child : markerGroup) {
-			markerGroup.remove(child);
+
+	int heightOfGridRow() {
+		return (_cellSize+_cellGap)*_numberOfCellsPerGridSide - _cellGap;
+	}
+
+	int numberOfGridColumns() {
+		return (int)Math.floor((_width+_gridGap)/(widthOfGridColumn()+_gridGap));
+	}
+
+	int numberOfGridRows() {
+		return (int)Math.floor(_height/heightOfGridRow());
+	}
+
+	PVector pointOffsetForGridCoordinates(int gridRow, int gridColumn, int cellRow, int cellColumn) {
+		float offsetX = gridColumn * (widthOfGridColumn() + _gridGap) + cellColumn * (_cellSize+_cellGap);
+		float offsetY = gridRow * (heightOfGridRow() + _gridGap) + cellRow * (_cellSize+_cellGap);
+
+		return new PVector(offsetX, offsetY);
+	}
+
+	void locateCell(HRect cellRect, PGraphics g, boolean usesZ, float drawX, float drawY, float currAlphaPc) {
+
+		int currentGridRow = cellRect.numI("currentGridRow");
+		int currentGridColumn = cellRect.numI("currentGridColumn");
+		int currentCellRow = cellRect.numI("currentCellRow");
+		int currentCellColumn = cellRect.numI("currentCellColumn");
+
+		// println("locate, currentGridRow: " + currentGridRow + ", currentGridColumn: " + currentGridColumn);
+		// println("locate, currentCellRow: " + currentCellRow + ", currentCellColumn: " + currentCellColumn);
+
+		PVector offset = pointOffsetForGridCoordinates(currentGridRow, currentGridColumn, currentCellRow, currentCellColumn);
+
+		cellRect.loc(offset.x, offset.y);
+		cellRect.draw(g, usesZ, drawX + cellRect.x(), drawY + cellRect.y(), currAlphaPc);
+
+		currentCellColumn = currentCellColumn < _numberOfCellsPerGridSide-1 ? currentCellColumn + 1 : 0;
+		currentCellRow = currentCellColumn == 0 ? currentCellRow + 1 : currentCellRow;
+
+		if (currentCellRow < _numberOfCellsPerGridSide) {
+			cellRect.num("currentCellRow", currentCellRow);
+			cellRect.num("currentCellColumn", currentCellColumn);
+
+			locateCell(cellRect, g, usesZ, drawX, drawY, currAlphaPc);
 		}
-	}
-	if (key == 'g') {
-		// markerGroup.add(darkMarkSeries());
-	}
-	if (key == 's') {
-		// for (int i = 0; i < 10+random(10); i++) {
-		// 	markerGroup.add(darkMarkSeries());
-		// }
-	}
-}
+		else if (currentCellRow >= _numberOfCellsPerGridSide) {
+			// start a new grid
+			currentCellRow = 0;
+			currentCellColumn = 0;
+
+			currentGridColumn = currentGridColumn < numberOfGridColumns()-1 ? currentGridColumn + 1 : 0;
+			currentGridRow = currentGridColumn == 0 ? currentGridRow + 1 : currentGridRow;
+
+			if (currentGridRow < 4 /*numberOfGridRows()*/) {
+				cellRect.num("currentCellRow", currentCellRow);
+				cellRect.num("currentCellColumn", currentCellColumn);
+				cellRect.num("currentGridRow", currentGridRow);
+				cellRect.num("currentGridColumn", currentGridColumn);
+
+				locateCell(cellRect, g, usesZ, drawX, drawY, currAlphaPc);
+			}
+		}
+
+	} // end -- locateCell()
+
+	void renderCellGrid(PGraphics g, boolean usesZ, float drawX, float drawY, float currAlphaPc) {
+
+		HRect cellRect = new HRect(3, 3);
+		cellRect
+				.fill(0)
+				.noStroke()
+				.alpha(100);
+		cellRect.num("currentGridRow", 0);
+		cellRect.num("currentGridColumn", 0);
+		cellRect.num("currentCellRow", 0);
+		cellRect.num("currentCellColumn", 0);
+
+		locateCell(cellRect, g, usesZ, drawX, drawY, currAlphaPc);
+
+		println("finished rendering grid");
+		println(_width);
+		println(widthOfGridColumn());
+		println(numberOfGridColumns());
+
+	} // end -- renderCellGrid()
 
 
+	// void renderCellGrid(PGraphics g, boolean usesZ, float drawX, float drawY, float currAlphaPc) {
 
+	// 	// HRect cellRect = new HRect(3, 3);
+	// 	// cellRect
+	// 	// 		.fill(0)
+	// 	// 		.noStroke()
+	// 	// 		.alpha(100);
+	// 	// cellRect.num("currentGridRow", 0);
+	// 	// cellRect.num("currentGridColumn", 0);
+	// 	// cellRect.num("currentCellRow", 0);
+	// 	// cellRect.num("currentCellColumn", 0);
+
+	// 	// locateCell(cellRect, g, usesZ, drawX, drawY, currAlphaPc);
+
+	// 	// println("finished rendering grid");
+
+	// 	HDrawablePool cellPool = new HDrawablePool(700)
+	// 		.autoParent(backgroundGrad)
+	// 		.add(new HGroup())
+	// 		.layout(
+	// 			new HGridLayout()
+	// 				.startX(1)
+	// 				.startY(1)
+	// 				.spacingX(20)
+	// 				.spacingY(20)
+	// 				.cols(20)
+	// 		)
+	// 		.onCreate(new HCallback() {
+	// 			public void run(Object obj) {
+	// 				HGroup d = (HGroup)obj;
+	// 				cell(d);
+	// 			}
+	// 		})
+	// 		.requestAll();
+
+	// } // end -- renderCellGrid()
+
+
+	// Subclass methods
+	//
+	//
+
+	public BlueCellGrid createCopy() {
+		BlueCellGrid copy = new BlueCellGrid();
+		copy.copyPropertiesFrom(this);
+		return copy;
+	}
+
+	public void draw(PGraphics g, boolean usesZ, float drawX, float drawY, float currAlphaPc) {
+
+		color startColor = #54C9F4;
+		color endColor = #A6E2FC;
+
+		// draw background color gradient
+		PCHLinearGradient backgroundGrad = new PCHLinearGradient(startColor, endColor);
+		backgroundGrad
+			.setAxis(PCHLinearGradient.YAXIS)
+			.size(_width, _height)
+			;
+		backgroundGrad.draw(g, usesZ, drawX, drawY, currAlphaPc);
+
+		// draw cell grid
+		renderCellGrid(g, usesZ, drawX, drawY, currAlphaPc);
+
+	} // end -- draw()
+
+} // end -- class BlueCellGrid
 
 public static abstract class HBehavior extends HNode<HBehavior> {
 	protected HBehaviorRegistry _registry;
@@ -5328,6 +5452,122 @@ public void drawHandles(PGraphics g, HVertex prev,float drawX,float drawY) {
 }
 import java.util.*;
 
+public static class PCHLazyDrawable extends HDrawable {
+
+	// Properties
+
+	private PGraphics _graphics;
+	private String _renderer;
+	private HDrawable _drawable;
+	private boolean _needsRender;
+
+	// Constructors
+
+	public PCHLazyDrawable(HDrawable drawable) {
+		this(drawable, PConstants.JAVA2D);
+	}
+
+	public PCHLazyDrawable(HDrawable drawable, String bufferRenderer) {
+		_needsRender = true;
+		_renderer = bufferRenderer;
+		_drawable = drawable;
+
+		updateBounds();
+	}
+
+	// Synthesizers
+
+	public PCHLazyDrawable renderer(String s) {
+		_renderer = s;
+		_needsRender = true;
+		updateBuffer();
+
+		return this;
+	}
+
+	public String renderer() {
+		return _renderer;
+	}
+
+	public PGraphics graphics() {
+		return _graphics;
+	}
+
+	public HDrawable drawable() {
+		return _drawable;
+	}
+
+	public PCHLazyDrawable drawable(HDrawable drawable) {
+		_drawable = drawable;
+		_needsRender = true;
+		updateBounds();
+
+		return this;
+	}
+
+	public boolean needsRender() {
+		return _needsRender;
+	}
+
+	public PCHLazyDrawable needsRender(boolean needsRender) {
+		_needsRender = needsRender;
+		if(_needsRender) {
+			updateBounds();
+		}
+
+		return this;
+	}
+
+	// Class methods
+
+	protected void updateBounds() {
+		PVector loc = new PVector(), size = new PVector();
+		_drawable.bounds(loc,size);
+
+		_width = size.x;
+		_height = size.y;
+
+		this.loc(loc);
+
+		updateBuffer();
+	}
+
+	protected void updateBuffer() {
+		int w = Math.round(_width);
+		int h = Math.round(_height);
+		_graphics = H.app().createGraphics(w, h, _renderer);
+		_graphics.loadPixels();
+		_graphics.beginDraw();
+		_graphics.background(H.CLEAR);
+		_graphics.endDraw();
+		_width = w;
+		_height = h;
+	}
+
+	// Subclass methods
+
+	public PCHLazyDrawable createCopy() {
+		PCHLazyDrawable copy = new PCHLazyDrawable(_drawable,_renderer);
+		copy._needsRender = _needsRender;
+		copy.copyPropertiesFrom(this);
+		return copy;
+	}
+
+	public void draw(PGraphics g, boolean usesZ, float drawX, float drawY, float currAlphaPc) {
+		if (needsRender()) {
+			println("rendering");
+			_graphics.beginDraw();
+			_graphics.background(H.CLEAR);
+			_drawable.draw(_graphics, usesZ, drawX, drawY, currAlphaPc);
+			_graphics.endDraw();
+		}
+
+		// image to g
+		g.image(_graphics,0,0);
+
+		needsRender(false);
+	}
+}
 public static class PCHLinearGradient extends HDrawable {
 	public static final int XAXIS = 1, YAXIS = 2;
 
