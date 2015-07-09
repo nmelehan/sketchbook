@@ -76,6 +76,9 @@ public class BlueCellGrid extends HDrawable {
 		int gradWidthInGridColumns = 0;
 		int gradHeightInGridRows = 0;
 
+		PCHLinearGradient grad = new PCHLinearGradient(_startColor, _endColor)
+			.axis(PCHLinearGradient.YAXIS);
+
 		while (gradYInGridRows < numberOfGridRows()) {
 			float inter = map(gradYInGridRows*heightOfGridRowAndGap(), 0, totalHeightOfGridSpan(), 0, 1);
 			color gradLerp = H.app().lerpColor(_startColor, _endColor, inter);
@@ -95,9 +98,9 @@ public class BlueCellGrid extends HDrawable {
 
 				gradWidthInGridColumns = (numberOfGridColumns() - gradXInGridColumns) < 6 ? numberOfGridColumns() - gradXInGridColumns : (int)random(3, 6);
 
-				PCHLinearGradient grad = new PCHLinearGradient(gradStartColor, gradEndColor);
 				grad
-					.axis(PCHLinearGradient.YAXIS)
+					.startColor(gradStartColor)
+					.endColor(gradEndColor)
 					.loc(gradXInGridColumns*widthOfGridColumnAndGap(), gradYInGridRows*heightOfGridRowAndGap())
 					.size(widthOfGridColumnAndGap()*gradWidthInGridColumns - _gridGap, heightOfGridRowAndGap()*gradHeightInGridRows - _gridGap)
 					;
@@ -110,7 +113,7 @@ public class BlueCellGrid extends HDrawable {
 			gradXInGridColumns = 0;
 			gradYInGridRows += gradHeightInGridRows;
 		}
-	}
+	} // end -- renderTopGradients()
 
 	HGroup addons(HGroup markerSeries) {
 		float addonProbabilityThreshold = .8;
