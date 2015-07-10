@@ -6,7 +6,7 @@ void setup() {
 	H.init(this).background(#FFFFFF);
 
 	blueCellGrid = new BlueCellGrid();
-	blueCellGrid.size(800, 800).alpha(100);
+	blueCellGrid.size(800, 800).alpha(255);
 	lazyBlueCellGrid = new PCHLazyDrawable(blueCellGrid);
 	H.add(lazyBlueCellGrid);
 
@@ -16,9 +16,9 @@ void setup() {
 void draw() {
 	H.drawStage();
 
-	// if (frameCount % 50 == 0) {
-	// 	lazyBlueCellGrid.needsRender(true);
-	// }
+	if (frameCount % 200 == 0) {
+		lazyBlueCellGrid.needsRender(true);
+	}
 }
 
 // void keyPressed() {

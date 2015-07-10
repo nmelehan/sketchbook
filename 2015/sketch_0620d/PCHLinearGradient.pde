@@ -1,4 +1,4 @@
-public static class PCHLinearGradient extends HDrawable {
+public class PCHLinearGradient extends HDrawable {
 
 	// Properties
 	//
@@ -68,13 +68,23 @@ public static class PCHLinearGradient extends HDrawable {
 		return copy;
 	}
 
+	private color colorWithAlpha(color aColor, float alphaPc) {
+		int r = (aColor >> 16) & 0xFF;  	// Faster way of getting red(aColor)
+		int g = (aColor >> 8) & 0xFF;   	// Faster way of getting green(aColor)
+		int b = aColor & 0xFF; 			// Faster way of getting blue(aColor)
+		int a = (aColor >> 24) & 0xFF;
+		return color(r, g, b, a*alphaPc);
+	}
+
 	public void draw(PGraphics g, boolean usesZ, float drawX, float drawY, float currAlphaPc) {
+		// applyStyle(g, currAlphaPc);
 		if (_axis == XAXIS) {
 			for (int i = 0; i <= _width; i++) {
 				HPath line = new HPath();
 
 				float inter = H.app().map(i, 0, _width, 0, 1);
-				color c = H.app().lerpColor(_startColor, _endColor, inter);
+				color c = colorWithAlpha(H.app().lerpColor(_startColor, _endColor, inter), currAlphaPc);
+				// mix c and currAlphaPc
 
 				g.stroke(c);
 				g.strokeCap(SQUARE);
@@ -87,7 +97,7 @@ public static class PCHLinearGradient extends HDrawable {
 				HPath line = new HPath();
 
 				float inter = H.app().map(i, 0, _height, 0, 1);
-				color c = H.app().lerpColor(_startColor, _endColor, inter);
+				color c = colorWithAlpha(H.app().lerpColor(_startColor, _endColor, inter), currAlphaPc);
 
 				g.stroke(c);
 				g.strokeCap(SQUARE);

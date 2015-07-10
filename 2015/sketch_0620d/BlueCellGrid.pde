@@ -226,7 +226,6 @@ public class BlueCellGrid extends HDrawable {
 
 	public void draw(PGraphics g, boolean usesZ, float drawX, float drawY, float currAlphaPc) {
 
-		println("blue cell grid currAlphaPC: " + currAlphaPc);
 		// draw background color gradient
 		PCHLinearGradient backgroundGrad = new PCHLinearGradient(_startColor, _endColor);
 		backgroundGrad
