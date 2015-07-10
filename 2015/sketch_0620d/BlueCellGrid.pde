@@ -44,6 +44,13 @@ public class BlueCellGrid extends HDrawable {
 		return (heightOfGridRow()+_gridGap)*numberOfGridRows() - _gridGap;
 	}
 
+	PVector pointCoordinatesForGridAndCellCoordinates(int gridColumn, int gridRow, int cellColumn, int cellRow) {
+		float offsetX = gridColumn * (widthOfGridColumn() + _gridGap) + cellColumn * (_cellSize+_cellGap);
+		float offsetY = gridRow * (heightOfGridRow() + _gridGap) + cellRow * (_cellSize+_cellGap);
+
+		return new PVector(offsetX, offsetY);
+	}
+
 	// Rendering subroutines
 
 	void renderCellGrid(PGraphics g, boolean usesZ, float drawX, float drawY, float currAlphaPc) {
@@ -150,25 +157,38 @@ public class BlueCellGrid extends HDrawable {
 	}
 
 	public void renderAccentMarkSeries(PGraphics g, boolean usesZ, float drawX, float drawY, float currAlphaPc) {
-		int numMarks = floor(random(2, 10));
+		int minNumberOfMarksInSeries = 2;
+		int maxNumberOfMarksInSeries = 10;
+
+		int numberOfMarksInSeries = floor(random(minNumberOfMarksInSeries, maxNumberOfMarksInSeries));
+
+		// Render left side
+		PVector seriesOrigin = pointCoordinatesForGridAndCellCoordinates(
+				(int)random(numberOfGridColumns()/2),
+				(int)random(numberOfGridRows()),
+				(int)random(_numberOfCellsPerGridSide),
+				(int)random(_numberOfCellsPerGridSide)
+				);
+
+		// Render mirrored (right) side
 
 		HGroup markerSeriesLeft = new HGroup();
 		int seriesX = floor(random(10))*widthOfGridColumnAndGap();
 		int seriesY = floor(random(20))*7*5;
-		markerSeriesLeft.loc(seriesX, seriesY);
+		markerSeriesLeft.loc(seriesOrigin.x, seriesOrigin.y);
 
 		int markerHeight = floor(random(15, 21));
 		int markerWidth = 4-(markerHeight-19);
 
 		HGroup markerSeriesRight = new HGroup();
 		markerSeriesRight.anchorAt(H.BOTTOM | H.LEFT)
-			.loc(_width-seriesX, seriesY+markerHeight)
+			.loc(_width-seriesOrigin.x, seriesOrigin.y+markerHeight)
 			.rotate(180);
 
 		float markerGap = 2;
 		float markerAddonVerticalGap = floor(random(3)) * 5;
 		float xPos = 0;
-		for (int i = 0; i < numMarks; i++) {
+		for (int i = 0; i < numberOfMarksInSeries; i++) {
 			xPos+=(markerWidth+markerGap);
 			HRect markerRect = new HRect(markerWidth, markerHeight);
 			markerRect
@@ -213,7 +233,7 @@ public class BlueCellGrid extends HDrawable {
 			.axis(PCHLinearGradient.YAXIS)
 			.size(_width, _height)
 			;
-		backgroundGrad.draw(g, usesZ, drawX, drawY, currAlphaPc);
+		backgroundGrad.paintAll(g, usesZ, currAlphaPc);
 
 		// draw cell grid
 		float gridOffsetX = (_width-totalWidthOfGridSpan())/2;
