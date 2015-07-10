@@ -128,35 +128,36 @@ public class BlueCellGrid extends HDrawable {
 		}
 	} // end -- renderTopGradients()
 
-	HGroup addons(HGroup markerSeries) {
+	void renderAccentMarkSeries(HRect markerRect, int numberOfMarksInSeries, int markerGap, PGraphics g, boolean usesZ, float currAlphaPc) {
+		float markerWidth = markerRect.width();
+
 		float addonProbabilityThreshold = .8;
+		for (int i = 0; i < numberOfMarksInSeries; i++) {
+			// render base marker
+			markerRect.paintAll(g, usesZ, currAlphaPc);
 
-		for (HDrawable s : markerSeries) {
-			HGroup series = (HGroup)s;
-			HGroup addons = new HGroup();
-			for (HDrawable m : series) {
-				HRect marker = (HRect)m;
-				boolean addonIsAbove = (random(1) > .5) ? true : false;
-				if (random(1)>addonProbabilityThreshold) {
-					HRect extension = marker.createCopy();
-					float newHeight = marker.height()*random(.1,.9);
-					extension.height(newHeight);
-					if (addonIsAbove) {
-						extension.y(-1*newHeight);
-					}
-					else {
-						extension.y(marker.height());
-					}
-					addons.add(extension);
+			// render addons
+			boolean addonIsAbove = (random(1) > .5) ? true : false;
+			if (random(1)>addonProbabilityThreshold) {
+				HRect addonRect = markerRect.createCopy();
+				float newHeight = markerRect.height()*random(.1,.9);
+				addonRect.height(newHeight);
+				if (addonIsAbove) {
+					addonRect.move(0, -1*newHeight);
 				}
+				else {
+					addonRect.move(0, markerRect.height());
+				}
+				addonRect.paintAll(g, usesZ, currAlphaPc);
 			}
-			series.add(addons);
-		}
 
-		return markerSeries;
+			markerRect.move(markerWidth+markerGap, 0);
+		}
 	}
 
-	public void renderAccentMarkSeries(PGraphics g, boolean usesZ, float drawX, float drawY, float currAlphaPc) {
+	public void renderAccentMarkSeriesPair(PGraphics g, boolean usesZ, float drawX, float drawY, float currAlphaPc) {
+		color markerColor = #4293D4;
+
 		int minNumberOfMarksInSeries = 2;
 		int maxNumberOfMarksInSeries = 10;
 
@@ -170,47 +171,31 @@ public class BlueCellGrid extends HDrawable {
 				(int)random(_numberOfCellsPerGridSide)
 				);
 
-		// Render mirrored (right) side
+		int dH = (int)random(0, 3);
 
-		HGroup markerSeriesLeft = new HGroup();
-		int seriesX = floor(random(10))*widthOfGridColumnAndGap();
-		int seriesY = floor(random(20))*7*5;
-		markerSeriesLeft.loc(seriesOrigin.x, seriesOrigin.y);
+		int maxMarkerHeightInCellIncrements = 6;
 
-		int markerHeight = floor(random(15, 21));
-		int markerWidth = 4-(markerHeight-19);
+		int markerWidth = _cellSize + dH*_cellSize;
+		int markerHeight = (_cellSize+_cellGap)*(maxMarkerHeightInCellIncrements - dH);
+		int markerGap = _cellGap*2;
+		HRect markerRect = new HRect(markerWidth, markerHeight);
+		markerRect
+			.loc(drawX + seriesOrigin.x, drawY + seriesOrigin.y)
+			.fill(markerColor)
+			.noStroke();
 
-		HGroup markerSeriesRight = new HGroup();
-		markerSeriesRight.anchorAt(H.BOTTOM | H.LEFT)
-			.loc(_width-seriesOrigin.x, seriesOrigin.y+markerHeight)
-			.rotate(180);
+		// draw left half series
+		renderAccentMarkSeries(markerRect, numberOfMarksInSeries, markerGap, g, usesZ, currAlphaPc);
 
-		float markerGap = 2;
-		float markerAddonVerticalGap = floor(random(3)) * 5;
-		float xPos = 0;
-		for (int i = 0; i < numberOfMarksInSeries; i++) {
-			xPos+=(markerWidth+markerGap);
-			HRect markerRect = new HRect(markerWidth, markerHeight);
-			markerRect
-				.loc(xPos, 0)
-				.fill(#4293D4)
-				.noStroke();
-			markerSeriesLeft.add(markerRect);
-			markerSeriesRight.add(markerRect.createCopy());
-		}
-
-		HGroup markerSeries = new HGroup();
-		markerSeries.add(markerSeriesLeft);
-		markerSeries.add(markerSeriesRight);
-
-		addons(markerSeries);
-
-		markerSeries.paintAll(g, usesZ, currAlphaPc);
+		// draw mirror image series on right half
+		int seriesWidth = (markerWidth+markerGap)*numberOfMarksInSeries - markerGap;
+		markerRect.loc(drawX + totalWidthOfGridSpan() - seriesOrigin.x - seriesWidth, drawY + seriesOrigin.y);
+		renderAccentMarkSeries(markerRect, numberOfMarksInSeries, markerGap, g, usesZ, currAlphaPc);
 	}
 
 	public void renderAccentMarks(PGraphics g, boolean usesZ, float drawX, float drawY, float currAlphaPc) {
 		 for (int i = 0; i < 10+random(10); i++) {
-			renderAccentMarkSeries(g, usesZ, drawX, drawY, currAlphaPc);
+			renderAccentMarkSeriesPair(g, usesZ, drawX, drawY, currAlphaPc);
 		}
 	}
 
@@ -235,13 +220,13 @@ public class BlueCellGrid extends HDrawable {
 		backgroundGrad.paintAll(g, usesZ, currAlphaPc);
 
 		// draw cell grid
-		float gridOffsetX = (_width-totalWidthOfGridSpan())/2;
-		float gridOffsetY = (_height-totalHeightOfGridSpan())/2;
-		renderCellGrid(g, usesZ, drawX+(int)gridOffsetX, drawY+(int)gridOffsetY, currAlphaPc);
+		int gridOffsetX = (int)(_width-totalWidthOfGridSpan())/2;
+		int gridOffsetY = (int)(_height-totalHeightOfGridSpan())/2;
+		renderCellGrid(g, usesZ, drawX+gridOffsetX, drawY+(int)gridOffsetY, currAlphaPc);
 
-		renderTopGradients(g, usesZ, drawX+(int)gridOffsetX, drawY+(int)gridOffsetY, currAlphaPc);
+		renderTopGradients(g, usesZ, drawX+gridOffsetX, drawY+(int)gridOffsetY, currAlphaPc);
 
-		renderAccentMarks(g, usesZ, drawX, drawY, currAlphaPc);
+		renderAccentMarks(g, usesZ, drawX+gridOffsetX, drawY+gridOffsetY, currAlphaPc);
 
 	} // end -- draw()
 
