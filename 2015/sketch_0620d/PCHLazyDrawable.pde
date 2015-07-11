@@ -1,4 +1,4 @@
-public static class PCHLazyDrawable extends HDrawable {
+public class PCHLazyDrawable extends HDrawable {
 
 	// Properties
 
@@ -37,6 +37,12 @@ public static class PCHLazyDrawable extends HDrawable {
 
 	public PGraphics graphics() {
 		return _graphics;
+	}
+
+	public PCHLazyDrawable graphics(PGraphics graphics) {
+		_graphics = graphics;
+
+		return this;
 	}
 
 	public HDrawable drawable() {
@@ -93,8 +99,14 @@ public static class PCHLazyDrawable extends HDrawable {
 	// Subclass methods
 
 	public PCHLazyDrawable createCopy() {
+		PGraphics graphicsCopy = createGraphics(_graphics.width, _graphics.height, JAVA2D);
+		graphicsCopy.loadPixels();
+		arrayCopy(_graphics.pixels, graphicsCopy.pixels);
+		graphicsCopy.updatePixels();
+
 		PCHLazyDrawable copy = new PCHLazyDrawable(_drawable,_renderer);
-		copy._needsRender = _needsRender;
+		copy.graphics(graphicsCopy);
+		copy.needsRender(_needsRender);
 		copy.copyPropertiesFrom(this);
 		return copy;
 	}
