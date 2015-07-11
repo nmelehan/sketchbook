@@ -194,7 +194,8 @@ public class BlueCellGrid extends HDrawable {
 	}
 
 	public void renderAccentMarks(PGraphics g, boolean usesZ, float drawX, float drawY, float currAlphaPc) {
-		 for (int i = 0; i < 10+random(10); i++) {
+		int baseNumberOfSeries = (int)(_width*_height/64000)*2;
+		for (int i = 0; i < baseNumberOfSeries+random(baseNumberOfSeries); i++) {
 			renderAccentMarkSeriesPair(g, usesZ, drawX, drawY, currAlphaPc);
 		}
 	}
