@@ -13,6 +13,7 @@ sketchCollection["sketch_2015_0620d"] = {
 
         this.processingInstance = new Processing(this.canvas, this.sketchCode);
         this.setSketchSize();
+        this.processingInstance.sketchCanvasDidResize();
 
         this.initComplete = true;
     },
@@ -25,6 +26,17 @@ sketchCollection["sketch_2015_0620d"] = {
 
         $(this.canvas).width(parentWidth);
         $(this.canvas).height(parentHeight);
+    },
+
+    resizeDelay : 500,
+
+    parentElementDidResize: function() {
+        this.processingInstance.sketchCanvasWillResize();
+
+        if (this.resizeDelayTimer) {
+            window.clearTimeout(this.resizeDelayTimer);
+        }
+        this.resizeDelayTimer = window.setTimeout(this.resize.bind(this), this.resizeDelay);
     },
 
     resize : function() {
@@ -9228,14 +9240,18 @@ sketchCollection["sketch_2015_0620d"] = {
             H.init(this).background(0xFFFFFFFF);
 
             $p.blueCellGrid = new BlueCellGrid();
-            $p.blueCellGrid.size($p.width, $p.height).alpha(255);
+            $p.blueCellGrid.size(400, 400).alpha(255);
             $p.lazyBlueCellGrid = new PCHLazyDrawable($p.blueCellGrid);
+            $p.lazyBlueCellGrid.needsRender(false);
             H.add($p.lazyBlueCellGrid);
         }
         $p.setup = setup;
         setup = setup.bind($p);
 
         function draw() {
+            $p.lazyBlueCellGrid.loc(
+                ($p.width-$p.lazyBlueCellGrid.width())/2,
+                ($p.height-$p.lazyBlueCellGrid.height())/2);
             H.drawStage();
         }
         $p.draw = draw;
@@ -9251,6 +9267,9 @@ sketchCollection["sketch_2015_0620d"] = {
         }
         $p.keyPressed = keyPressed;
         keyPressed = keyPressed.bind($p);
+
+        $p.sketchCanvasWillResize = function() {
+        }
 
         $p.sketchCanvasDidResize = function() {
             $p.blueCellGrid.size($p.width, $p.height);

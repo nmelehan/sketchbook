@@ -40,7 +40,7 @@ $(window).resize(function() {
         var sketchName = $(this).children("img").attr("alt");
 
         if (sketchCollection.hasOwnProperty(sketchName)) {
-            sketchCollection[sketchName].resize();
+            sketchCollection[sketchName].parentElementDidResize();
         }
         else {
             console.log("[sketch_gallery.js] No sketch found with name: " + sketchName);
