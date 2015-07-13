@@ -99,7 +99,7 @@ public class PCHLazyDrawable extends HDrawable {
 	// Subclass methods
 
 	public PCHLazyDrawable createCopy() {
-		PGraphics graphicsCopy = createGraphics(_graphics.width, _graphics.height, JAVA2D);
+		PGraphics graphicsCopy = createGraphics(_graphics.width, _graphics.height, _renderer);
 		graphicsCopy.loadPixels();
 		arrayCopy(_graphics.pixels, graphicsCopy.pixels);
 		graphicsCopy.updatePixels();
