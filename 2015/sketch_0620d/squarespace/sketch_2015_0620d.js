@@ -13,7 +13,9 @@ sketchCollection["sketch_2015_0620d"] = {
 
         this.processingInstance = new Processing(this.canvas, this.sketchCode);
         this.setSketchSize();
-        this.processingInstance.sketchCanvasDidResize();
+        if (typeof this.processingInstance.sketchCanvasDidResize == 'function') {
+            this.processingInstance.sketchCanvasDidResize();
+        }
 
         this.initComplete = true;
     },
@@ -31,7 +33,9 @@ sketchCollection["sketch_2015_0620d"] = {
     resizeDelay : 500,
 
     parentElementDidResize: function() {
-        this.processingInstance.sketchCanvasWillResize();
+        if (typeof this.processingInstance.sketchCanvasWillResize == 'function') {
+            this.processingInstance.sketchCanvasWillResize();
+        }
 
         if (this.resizeDelayTimer) {
             window.clearTimeout(this.resizeDelayTimer);
@@ -56,7 +60,9 @@ sketchCollection["sketch_2015_0620d"] = {
         var imageDataY = (newHeight - oldHeight)/2;
         sketchCanvasContext.putImageData(imageData, imageDataX, imageDataY);
 
-        this.processingInstance.sketchCanvasDidResize();
+        if (typeof this.processingInstance.sketchCanvasDidResize == 'function') {
+            this.processingInstance.sketchCanvasDidResize();
+        }
     },
 
     //
@@ -9267,9 +9273,6 @@ sketchCollection["sketch_2015_0620d"] = {
         }
         $p.keyPressed = keyPressed;
         keyPressed = keyPressed.bind($p);
-
-        $p.sketchCanvasWillResize = function() {
-        }
 
         $p.sketchCanvasDidResize = function() {
             $p.blueCellGrid.size($p.width, $p.height);
