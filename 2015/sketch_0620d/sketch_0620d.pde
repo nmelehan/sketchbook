@@ -19,9 +19,23 @@ void setup() {
 	H.add(hlw);
 }
 
+void generateTempRect(int x, int y) {
+		HRect r = new HRect(50, 50);
+		r.loc(x, y);
+		HOscillator b = new HOscillator()
+			.target(r)
+			.property(H.SIZE)
+			.range(10, 100)
+			.speed(1)
+			.freq(4)
+			.unregister();
+		;
+		hlw.lightweightAdd(r, 1000, b);
+}
+
 void draw() {
 	if (frameCount % 10 == 0) {
-		hlw.lightweightAdd(new HRect(50, 50).loc(random(width), random(height)), 1000);
+		generateTempRect((int)random(width), (int)random(height));
 	}
 
 	H.drawStage();
@@ -32,7 +46,7 @@ void draw() {
 }
 
 void mouseClicked() {
-	hlw.lightweightAdd(new HRect(50, 50).loc(mouseX, mouseY), 10000);
+	generateTempRect(mouseX, mouseY);
 }
 
 void keyPressed() {

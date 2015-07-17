@@ -68,6 +68,12 @@ public class PCHLightweightCanvas extends HCanvas {
 				public void run(Object obj) {
 					add(d);
 
+					// Meaning: passing a duration of zero
+					// will persist the drawable on the canvas
+					if (duration == 0) {
+						return;
+					}
+
 					final PCHLightweightCanvas lwc = (PCHLightweightCanvas)obj;
 					new HTimer(duration, 2).callback(
 							new HCallback() {
@@ -87,7 +93,35 @@ public class PCHLightweightCanvas extends HCanvas {
 		return this;
 	}
 
-	public PCHLightweightCanvas lightweightAdd(final HDrawable d, final HBehavior b, final int duration) {
+	public PCHLightweightCanvas lightweightAdd(final HDrawable d, final int duration, final HBehavior b) {
+		HCallback canvasAddition = new HCallback() {
+				public void run(Object obj) {
+					add(d);
+					b.register();
+
+					// Meaning: passing a duration of zero
+					// will persist the drawable on the canvas
+					if (duration == 0) {
+						return;
+					}
+
+					final PCHLightweightCanvas lwc = (PCHLightweightCanvas)obj;
+					new HTimer(duration, 2).callback(
+							new HCallback() {
+									public void run(Object obj) {
+										int cycleCount = (Integer)obj;
+										if (cycleCount >= 1) {
+											b.unregister();
+											lwc.lightweightRemove(d);
+										}
+									}
+								}
+						);
+				}
+			};
+
+		_canvasAdditions.add(canvasAddition);
+
 		return this;
 	}
 
