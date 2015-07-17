@@ -46,9 +46,9 @@ public class PCHLightweightCanvas extends HCanvas {
 	public PCHLightweightCanvas lightweightAdd(final HDrawable d) {
 		HCallback canvasAddition = new HCallback() {
 				public void run(Object obj) {
-					PCHLightweightCanvas pc = (PCHLightweightCanvas)obj;
+					PCHLightweightCanvas lwc = (PCHLightweightCanvas)obj;
 					add(d);
-					pc.lightweightRemove(d);
+					lwc.lightweightRemove(d);
 				}
 			};
 
@@ -63,7 +63,31 @@ public class PCHLightweightCanvas extends HCanvas {
 		return this;
 	}
 
-	public PCHLightweightCanvas lightweightAdd(final HDrawable d, final HBehavior b) {
+	public PCHLightweightCanvas lightweightAdd(final HDrawable d, final int duration) {
+		HCallback canvasAddition = new HCallback() {
+				public void run(Object obj) {
+					add(d);
+
+					final PCHLightweightCanvas lwc = (PCHLightweightCanvas)obj;
+					new HTimer(duration, 2).callback(
+							new HCallback() {
+									public void run(Object obj) {
+										int cycleCount = (Integer)obj;
+										if (cycleCount >= 1) {
+											lwc.lightweightRemove(d);
+										}
+									}
+								}
+						);
+				}
+			};
+
+		_canvasAdditions.add(canvasAddition);
+
+		return this;
+	}
+
+	public PCHLightweightCanvas lightweightAdd(final HDrawable d, final HBehavior b, final int duration) {
 		return this;
 	}
 
