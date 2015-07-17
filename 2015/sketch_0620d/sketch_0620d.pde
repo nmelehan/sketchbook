@@ -15,27 +15,31 @@ void setup() {
 	// H.add(lazyBlueCellGrid);
 
 	hlw = new PCHLightweightCanvas();
-	hlw.autoClear(false).fade(10);
+	hlw
+		.canvasAdditionRateLimit(1)
+		.autoClear(false)
+		.fade(10);
 	H.add(hlw);
 }
 
 void generateTempRect(int x, int y) {
 		HRect r = new HRect(50, 50);
 		r.loc(x, y);
-		HOscillator b = new HOscillator()
-			.target(r)
-			.property(H.SIZE)
-			.range(10, 100)
-			.speed(1)
-			.freq(4)
-			.unregister();
-		;
-		hlw.lightweightAdd(r, 1000, b);
+		// HOscillator b = new HOscillator()
+		// 	.target(r)
+		// 	.property(H.SIZE)
+		// 	.range(10, 20)
+		// 	.speed(1)
+		// 	.freq(4)
+		// 	.unregister();
+		// ;
+		hlw.lightweightAdd(r, 1000);
 }
 
 void draw() {
-	if (frameCount % 10 == 0) {
-		generateTempRect((int)random(width), (int)random(height));
+	if (frameCount % 1 == 0) {
+		for (int i = 0; i < 10; i++)
+			generateTempRect((int)random(width), (int)random(height));
 	}
 
 	H.drawStage();

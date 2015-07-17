@@ -3,7 +3,7 @@ public class PCHLightweightCanvas extends HCanvas {
 	// Properties
 
 	private ArrayList<HCallback> _canvasAdditions;
-	private ArrayList<HDrawable> _canvasSubtractions;
+	private ArrayList<HCallback> _canvasSubtractions;
 
 	int _canvasAdditionRateLimit;
 
@@ -11,7 +11,7 @@ public class PCHLightweightCanvas extends HCanvas {
 
 	public void init() {
 		_canvasAdditions = new ArrayList<HCallback>();
-		_canvasSubtractions = new ArrayList<HDrawable>();
+		_canvasSubtractions = new ArrayList<HCallback>();
 
 		_canvasAdditionRateLimit = 0;
 
@@ -41,6 +41,16 @@ public class PCHLightweightCanvas extends HCanvas {
 
 	// Synthesizers
 
+	int canvasAdditionRateLimit() {
+		return _canvasAdditionRateLimit;
+	}
+
+	PCHLightweightCanvas canvasAdditionRateLimit(int canvasAdditionRateLimit) {
+		_canvasAdditionRateLimit = canvasAdditionRateLimit;
+
+		return this;
+	}
+
 	// Class methods
 
 	public PCHLightweightCanvas lightweightAdd(final HDrawable d) {
@@ -53,12 +63,6 @@ public class PCHLightweightCanvas extends HCanvas {
 			};
 
 		_canvasAdditions.add(canvasAddition);
-
-		return this;
-	}
-
-	public PCHLightweightCanvas lightweightRemove(HDrawable d) {
-		_canvasSubtractions.add(d);
 
 		return this;
 	}
@@ -111,8 +115,7 @@ public class PCHLightweightCanvas extends HCanvas {
 									public void run(Object obj) {
 										int cycleCount = (Integer)obj;
 										if (cycleCount >= 1) {
-											b.unregister();
-											lwc.lightweightRemove(d);
+											lwc.lightweightRemove(d, b);
 										}
 									}
 								}
@@ -125,6 +128,31 @@ public class PCHLightweightCanvas extends HCanvas {
 		return this;
 	}
 
+	public PCHLightweightCanvas lightweightRemove(final HDrawable d) {
+		HCallback canvasSubtraction = new HCallback() {
+				public void run(Object obj) {
+					remove(d);
+				}
+			};
+
+		_canvasSubtractions.add(canvasSubtraction);
+
+		return this;
+	}
+
+	public PCHLightweightCanvas lightweightRemove(final HDrawable d, final HBehavior b) {
+		HCallback canvasSubtraction = new HCallback() {
+				public void run(Object obj) {
+					b.unregister();
+					remove(d);
+				}
+			};
+
+		_canvasSubtractions.add(canvasSubtraction);
+
+		return this;
+	}
+
 	// Subclass methods
 
 	public PCHLightweightCanvas createCopy() {
@@ -132,6 +160,15 @@ public class PCHLightweightCanvas extends HCanvas {
 		copy._canvasAdditionRateLimit = _canvasAdditionRateLimit;
 		copy.copyPropertiesFrom(this);
 		return copy;
+	}
+
+	void depleteCanvasSubtractions() {
+		HCallback c = _canvasSubtractions.remove(0);
+		c.run(this);
+
+		if (_canvasSubtractions.size() > 0) {
+			depleteCanvasSubtractions();
+		}
 	}
 
 	public void paintAll(PGraphics g, boolean zFlag, float alphaPc) {
@@ -148,9 +185,13 @@ public class PCHLightweightCanvas extends HCanvas {
 		super.paintAll(g, zFlag, alphaPc);
 
 		// remove drawables
-		while (_canvasSubtractions.size() > 0) {
-			HDrawable d = _canvasSubtractions.remove(0);
-			remove(d);
+		println(_canvasSubtractions.size());
+		// while (_canvasSubtractions.size() > 0) {
+		// 	HCallback c = _canvasSubtractions.remove(0);
+		// 	c.run(this);
+		// }
+		if (_canvasSubtractions.size() > 0) {
+			depleteCanvasSubtractions();
 		}
 	}
 }
