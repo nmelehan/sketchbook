@@ -5,7 +5,7 @@ public class PCHLightweightCanvasBinding {
 	private HDrawable _drawable;
 	private HBehavior _behavior;
 	private int _cycle;
-	private boolean _persistForever;
+	private boolean _delayCycleCountDown;
 
 	// Constructors
 
@@ -14,7 +14,7 @@ public class PCHLightweightCanvasBinding {
 		_behavior = behavior;
 		_cycle = numberOfCycles;
 
-		_persistForever = false;
+		_delayCycleCountDown = false;
 	}
 
 	// Synthesizers
@@ -35,18 +35,18 @@ public class PCHLightweightCanvasBinding {
 		_cycle = cycle;
 	}
 
-	public boolean persistForever() {
-		return _persistForever;
+	public boolean delayCycleCountDown() {
+		return _delayCycleCountDown;
 	}
 
-	public void persistForever(boolean persistForever) {
-		_persistForever = persistForever;
+	public void delayCycleCountDown(boolean delayCycleCountDown) {
+		_delayCycleCountDown = delayCycleCountDown;
 	}
 
 	// Class methods
 
 	public int countDown() {
-		if(!_persistForever) {
+		if(!_delayCycleCountDown) {
 			_cycle--;
 		}
 
