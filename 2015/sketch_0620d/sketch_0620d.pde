@@ -18,7 +18,7 @@ void setup() {
 
 	hlw = new PCHLightweightCanvas();
 	hlw
-		.canvasAdditionRateLimit(5)
+		// .canvasAdditionRateLimit(60)
 		.autoClear(false)
 		.fade(10);
 	H.add(hlw);
@@ -28,7 +28,7 @@ void generateTempRect(int x, int y) {
 		int rectSize = 10;
 		final HRect r = new HRect(rectSize, rectSize);
 		r
-			.loc((rectSize+10)*(dIndex%(width/rectSize)), (rectSize+10)*(dIndex/(width/rectSize)))
+			.loc((rectSize+0)*(dIndex%(width/rectSize)), (rectSize+0)*(dIndex/(width/rectSize)))
 			.fill(0)
 			.stroke(20);
 		r.num("index", dIndex);
@@ -58,7 +58,7 @@ void generateTempRect(int x, int y) {
 
 void draw() {
 	if (frameCount % 1 == 0) {
-		for (int i = 0; i < 50; i++)
+		for (int i = 0; i < 1; i++)
 			generateTempRect((int)random(width), (int)random(height));
 	}
 

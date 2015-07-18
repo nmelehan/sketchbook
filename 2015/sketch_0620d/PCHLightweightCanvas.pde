@@ -64,8 +64,11 @@ public class PCHLightweightCanvas extends HCanvas {
 	}
 
 	public PCHLightweightCanvas lightweightAdd(final HDrawable d, final int duration, final HBehavior b) {
-		PCHLightweightCanvasBinding lightweightChild = new PCHLightweightCanvasBinding(d, b, duration);
-		_lightweightChildrenAdditionQueue.add(lightweightChild);
+		return lightweightAdd(new PCHLightweightCanvasBinding(d, b, duration));
+	}
+
+	public PCHLightweightCanvas lightweightAdd(PCHLightweightCanvasBinding binding) {
+		_lightweightChildrenAdditionQueue.add(binding);
 
 		return this;
 	}
@@ -111,8 +114,7 @@ public class PCHLightweightCanvas extends HCanvas {
 
 		// remove drawables
 		for (PCHLightweightCanvasBinding lightweightChild : _lightweightChildren) {
-			int cycle = lightweightChild.cycle();
-			lightweightChild.cycle(--cycle);
+			int cycle = lightweightChild.countDown();
 			if (cycle < 1) {
 				_lightweightChildrenSubtractionQueue.add(lightweightChild);
 			}
