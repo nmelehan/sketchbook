@@ -18,7 +18,7 @@ void setup() {
 
 	hlw = new PCHLightweightCanvas();
 	hlw
-		.canvasAdditionRateLimit(1)
+		.canvasAdditionRateLimit(5)
 		.autoClear(false)
 		.fade(10);
 	H.add(hlw);
@@ -28,33 +28,20 @@ void generateTempRect(int x, int y) {
 		int rectSize = 10;
 		final HRect r = new HRect(rectSize, rectSize);
 		r
-			.loc(rectSize*(dIndex%(width/rectSize)), rectSize*(dIndex/(width/rectSize)))
+			.loc((rectSize+10)*(dIndex%(width/rectSize)), (rectSize+10)*(dIndex/(width/rectSize)))
 			.fill(0)
 			.stroke(20);
 		r.num("index", dIndex);
 		dIndex++;
-		// HOscillator b = new HOscillator()
-		// 	.target(r)
-		// 	.property(H.SIZE)
-		// 	.range(10, 20)
-		// 	.speed(1)
-		// 	.freq(4)
-		// 	.unregister();
-		// ;
-		int duration = 1000;
-
-		// HTimer b = new HTimer(duration, 2).callback(
-		// 		new HCallback() {
-		// 				public void run(Object obj) {
-		// 					int cycleCount = (Integer)obj;
-		// 					if (cycleCount >= 1) {
-		// 						println("hello");
-		// 						hlw.lightweightRemove(r);
-		// 					}
-		// 				}
-		// 			}
-		// 	).unregister().numCycles(2);
-
+		HOscillator b = new HOscillator()
+			.target(r)
+			.property(H.ALPHA)
+			.range(10, 20)
+			.speed(1)
+			.freq(4)
+			.unregister();
+		;
+		int duration = 200;
 
 		// HTween b = new HTween().target(r).property(H.ALPHA).start(0).end(255).ease(0.01).unregister();
 		// b.callback(
@@ -65,7 +52,8 @@ void generateTempRect(int x, int y) {
 		// 					}
 		// 				}
 		// 	);
-		hlw.lightweightAdd(r, duration);
+
+		hlw.lightweightAdd(r, duration, b);
 }
 
 void draw() {
@@ -74,14 +62,7 @@ void draw() {
 			generateTempRect((int)random(width), (int)random(height));
 	}
 
-	println();
-	// println(hlw.numChildren());
-
 	H.drawStage();
-
-	// if (frameCount % 200 == 0) {
-	// 	lazyBlueCellGrid.needsRender(true);
-	// }
 }
 
 void mouseClicked() {

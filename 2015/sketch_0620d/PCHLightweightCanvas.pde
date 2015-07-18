@@ -2,16 +2,18 @@ public class PCHLightweightCanvas extends HCanvas {
 
 	// Properties
 
-	private ArrayList<HCallback> _canvasAdditions;
-	private ArrayList<HCallback> _canvasSubtractions;
+	private ArrayList<PCHLightweightCanvasBinding> _lightweightChildrenAdditionQueue;
+	private ArrayList<PCHLightweightCanvasBinding> _lightweightChildrenSubtractionQueue;
+	private ArrayList<PCHLightweightCanvasBinding> _lightweightChildren;
 
 	int _canvasAdditionRateLimit;
 
 	// Constructors
 
 	public void init() {
-		_canvasAdditions = new ArrayList<HCallback>();
-		_canvasSubtractions = new ArrayList<HCallback>();
+		_lightweightChildrenAdditionQueue = new ArrayList<PCHLightweightCanvasBinding>();
+		_lightweightChildrenSubtractionQueue = new ArrayList<PCHLightweightCanvasBinding>();
+		_lightweightChildren = new ArrayList<PCHLightweightCanvasBinding>();
 
 		_canvasAdditionRateLimit = 0;
 
@@ -54,133 +56,36 @@ public class PCHLightweightCanvas extends HCanvas {
 	// Class methods
 
 	public PCHLightweightCanvas lightweightAdd(final HDrawable d) {
-		HCallback canvasAddition = new HCallback() {
-				public void run(Object obj) {
-					PCHLightweightCanvas lwc = (PCHLightweightCanvas)obj;
-					lwc.add(d);
-					println("canvasAddition, d.index: " + d.num("index"));
-					d.num("cycle", 1);
-					lwc.lightweightRemove(d);
-				}
-			};
-
-		_canvasAdditions.add(canvasAddition);
-
-		return this;
+		return lightweightAdd(d, 1, null);
 	}
 
 	public PCHLightweightCanvas lightweightAdd(final HDrawable d, final int duration) {
-		HCallback canvasAddition = new HCallback() {
-				public void run(Object obj) {
-					PCHLightweightCanvas lwc = (PCHLightweightCanvas)obj;
-					lwc.add(d);
-					println("canvasAddition, d.index: " + d.num("index"));
-					d.num("cycle", duration);
-					lwc.lightweightRemove(d);
-
-					// // Meaning: passing a duration of zero
-					// // will persist the drawable on the canvas
-					// if (duration == 0) {
-					// 	return;
-					// }
-
-					// final PCHLightweightCanvas lwc = (PCHLightweightCanvas)obj;
-					// new HTimer(duration, 2).callback(
-					// 		new HCallback() {
-					// 				public void run(Object obj) {
-					// 					int cycleCount = (Integer)obj;
-					// 					if (cycleCount >= 1) {
-					// 						lwc.lightweightRemove(d);
-					// 					}
-					// 				}
-					// 			}
-					// 	);
-				}
-			};
-
-		_canvasAdditions.add(canvasAddition);
-
-		return this;
+		return lightweightAdd(d, duration, null);
 	}
 
 	public PCHLightweightCanvas lightweightAdd(final HDrawable d, final int duration, final HBehavior b) {
-		HCallback canvasAddition = new HCallback() {
-				public void run(Object obj) {
-					add(d);
-					println("canvasAddition, d.index: " + d.num("index"));
-					b.register();
-
-					// Meaning: passing a duration of zero
-					// will persist the drawable on the canvas
-					if (duration == 0) {
-						return;
-					}
-
-					final PCHLightweightCanvas lwc = (PCHLightweightCanvas)obj;
-					new HTimer(duration, 2).callback(
-							new HCallback() {
-									public void run(Object obj) {
-										int cycleCount = (Integer)obj;
-										if (cycleCount >= 1) {
-											lwc.lightweightRemove(d, b);
-										}
-									}
-								}
-						);
-				}
-			};
-
-		_canvasAdditions.add(canvasAddition);
+		PCHLightweightCanvasBinding lightweightChild = new PCHLightweightCanvasBinding(d, b, duration);
+		_lightweightChildrenAdditionQueue.add(lightweightChild);
 
 		return this;
 	}
 
-	public PCHLightweightCanvas lightweightAdd(final HDrawable d, final HBehavior b) {
-		HCallback canvasAddition = new HCallback() {
-				public void run(Object obj) {
-					add(d);
-					b.register();
-				}
-			};
+	private void popOffLightweightChildrenAdditionQueue() {
+		PCHLightweightCanvasBinding lightweightChild = _lightweightChildrenAdditionQueue.remove(0);
 
-		_canvasAdditions.add(canvasAddition);
-
-		return this;
+		_lightweightChildren.add(lightweightChild);
+		add(lightweightChild.drawable());
+		HBehavior b = lightweightChild.behavior();
+		if (b != null) b.register();
 	}
 
-	public PCHLightweightCanvas lightweightRemove(final HDrawable d) {
-		HCallback canvasSubtraction = new HCallback() {
-				public void run(Object obj) {
-					println("canvasSubtraction, d.index: " + d.num("index"));
-					int cycle = (int)d.num("cycle");
-					cycle--;
-					println(cycle);
-					if (cycle < 1) {
-						remove(d);
-					}
-					else {
-						d.num("cycle", cycle);
-					}
-				}
-			};
+	private void popOffLightweightChildrenSubtractionQueue() {
+		PCHLightweightCanvasBinding lightweightChild = _lightweightChildrenSubtractionQueue.remove(0);
 
-		_canvasSubtractions.add(canvasSubtraction);
-
-		return this;
-	}
-
-	public PCHLightweightCanvas lightweightRemove(final HDrawable d, final HBehavior b) {
-		HCallback canvasSubtraction = new HCallback() {
-				public void run(Object obj) {
-					println("canvasSubtraction, d.index: " + d.num("index"));
-					b.unregister();
-					remove(d);
-				}
-			};
-
-		_canvasSubtractions.add(canvasSubtraction);
-
-		return this;
+		_lightweightChildren.remove(lightweightChild);
+		remove(lightweightChild.drawable());
+		HBehavior b = lightweightChild.behavior();
+		if (b != null) b.unregister();
 	}
 
 	// Subclass methods
@@ -192,33 +97,29 @@ public class PCHLightweightCanvas extends HCanvas {
 		return copy;
 	}
 
-	void depleteCanvasSubtractions() {
-		HCallback c = _canvasSubtractions.remove(0);
-		c.run(this);
-
-		if (_canvasSubtractions.size() > 0) {
-			depleteCanvasSubtractions();
-		}
-	}
-
 	public void paintAll(PGraphics g, boolean zFlag, float alphaPc) {
 		// add drawables
 		int numberOfAdditions = _canvasAdditionRateLimit == 0
-			? _canvasAdditions.size()
-			: min(_canvasAdditions.size(), _canvasAdditionRateLimit);
+			? _lightweightChildrenAdditionQueue.size()
+			: min(_lightweightChildrenAdditionQueue.size(), _canvasAdditionRateLimit);
 
 		for (int i = 0; i < numberOfAdditions; i++) {
-			HCallback c = _canvasAdditions.remove(0);
-			c.run(this);
+			popOffLightweightChildrenAdditionQueue();
 		}
 
 		super.paintAll(g, zFlag, alphaPc);
 
 		// remove drawables
-		println(_canvasSubtractions.size());
-		while (_canvasSubtractions.size() > 0) {
-			HCallback c = _canvasSubtractions.remove(0);
-			c.run(this);
+		for (PCHLightweightCanvasBinding lightweightChild : _lightweightChildren) {
+			int cycle = lightweightChild.cycle();
+			lightweightChild.cycle(--cycle);
+			if (cycle < 1) {
+				_lightweightChildrenSubtractionQueue.add(lightweightChild);
+			}
+		}
+
+		while (_lightweightChildrenSubtractionQueue.size() > 0) {
+			popOffLightweightChildrenSubtractionQueue();
 		}
 	}
 }
