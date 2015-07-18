@@ -57,7 +57,9 @@ public class PCHLightweightCanvas extends HCanvas {
 		HCallback canvasAddition = new HCallback() {
 				public void run(Object obj) {
 					PCHLightweightCanvas lwc = (PCHLightweightCanvas)obj;
-					add(d);
+					lwc.add(d);
+					println("canvasAddition, d.index: " + d.num("index"));
+					d.num("cycle", 1);
 					lwc.lightweightRemove(d);
 				}
 			};
@@ -70,25 +72,29 @@ public class PCHLightweightCanvas extends HCanvas {
 	public PCHLightweightCanvas lightweightAdd(final HDrawable d, final int duration) {
 		HCallback canvasAddition = new HCallback() {
 				public void run(Object obj) {
-					add(d);
+					PCHLightweightCanvas lwc = (PCHLightweightCanvas)obj;
+					lwc.add(d);
+					println("canvasAddition, d.index: " + d.num("index"));
+					d.num("cycle", duration);
+					lwc.lightweightRemove(d);
 
-					// Meaning: passing a duration of zero
-					// will persist the drawable on the canvas
-					if (duration == 0) {
-						return;
-					}
+					// // Meaning: passing a duration of zero
+					// // will persist the drawable on the canvas
+					// if (duration == 0) {
+					// 	return;
+					// }
 
-					final PCHLightweightCanvas lwc = (PCHLightweightCanvas)obj;
-					new HTimer(duration, 2).callback(
-							new HCallback() {
-									public void run(Object obj) {
-										int cycleCount = (Integer)obj;
-										if (cycleCount >= 1) {
-											lwc.lightweightRemove(d);
-										}
-									}
-								}
-						);
+					// final PCHLightweightCanvas lwc = (PCHLightweightCanvas)obj;
+					// new HTimer(duration, 2).callback(
+					// 		new HCallback() {
+					// 				public void run(Object obj) {
+					// 					int cycleCount = (Integer)obj;
+					// 					if (cycleCount >= 1) {
+					// 						lwc.lightweightRemove(d);
+					// 					}
+					// 				}
+					// 			}
+					// 	);
 				}
 			};
 
@@ -101,6 +107,7 @@ public class PCHLightweightCanvas extends HCanvas {
 		HCallback canvasAddition = new HCallback() {
 				public void run(Object obj) {
 					add(d);
+					println("canvasAddition, d.index: " + d.num("index"));
 					b.register();
 
 					// Meaning: passing a duration of zero
@@ -128,10 +135,32 @@ public class PCHLightweightCanvas extends HCanvas {
 		return this;
 	}
 
+	public PCHLightweightCanvas lightweightAdd(final HDrawable d, final HBehavior b) {
+		HCallback canvasAddition = new HCallback() {
+				public void run(Object obj) {
+					add(d);
+					b.register();
+				}
+			};
+
+		_canvasAdditions.add(canvasAddition);
+
+		return this;
+	}
+
 	public PCHLightweightCanvas lightweightRemove(final HDrawable d) {
 		HCallback canvasSubtraction = new HCallback() {
 				public void run(Object obj) {
-					remove(d);
+					println("canvasSubtraction, d.index: " + d.num("index"));
+					int cycle = (int)d.num("cycle");
+					cycle--;
+					println(cycle);
+					if (cycle < 1) {
+						remove(d);
+					}
+					else {
+						d.num("cycle", cycle);
+					}
 				}
 			};
 
@@ -143,6 +172,7 @@ public class PCHLightweightCanvas extends HCanvas {
 	public PCHLightweightCanvas lightweightRemove(final HDrawable d, final HBehavior b) {
 		HCallback canvasSubtraction = new HCallback() {
 				public void run(Object obj) {
+					println("canvasSubtraction, d.index: " + d.num("index"));
 					b.unregister();
 					remove(d);
 				}
@@ -186,12 +216,9 @@ public class PCHLightweightCanvas extends HCanvas {
 
 		// remove drawables
 		println(_canvasSubtractions.size());
-		// while (_canvasSubtractions.size() > 0) {
-		// 	HCallback c = _canvasSubtractions.remove(0);
-		// 	c.run(this);
-		// }
-		if (_canvasSubtractions.size() > 0) {
-			depleteCanvasSubtractions();
+		while (_canvasSubtractions.size() > 0) {
+			HCallback c = _canvasSubtractions.remove(0);
+			c.run(this);
 		}
 	}
 }

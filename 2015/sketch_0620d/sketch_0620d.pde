@@ -5,6 +5,8 @@ int copyIndex = 1;
 
 PCHLightweightCanvas hlw;
 
+int dIndex = 0;
+
 void setup() {
 	size(800, 800);
 	H.init(this).background(#FFFFFF);
@@ -23,8 +25,14 @@ void setup() {
 }
 
 void generateTempRect(int x, int y) {
-		HRect r = new HRect(50, 50);
-		r.loc(x, y);
+		int rectSize = 10;
+		final HRect r = new HRect(rectSize, rectSize);
+		r
+			.loc(rectSize*(dIndex%(width/rectSize)), rectSize*(dIndex/(width/rectSize)))
+			.fill(0)
+			.stroke(20);
+		r.num("index", dIndex);
+		dIndex++;
 		// HOscillator b = new HOscillator()
 		// 	.target(r)
 		// 	.property(H.SIZE)
@@ -33,14 +41,41 @@ void generateTempRect(int x, int y) {
 		// 	.freq(4)
 		// 	.unregister();
 		// ;
-		hlw.lightweightAdd(r, 1000);
+		int duration = 1000;
+
+		// HTimer b = new HTimer(duration, 2).callback(
+		// 		new HCallback() {
+		// 				public void run(Object obj) {
+		// 					int cycleCount = (Integer)obj;
+		// 					if (cycleCount >= 1) {
+		// 						println("hello");
+		// 						hlw.lightweightRemove(r);
+		// 					}
+		// 				}
+		// 			}
+		// 	).unregister().numCycles(2);
+
+
+		// HTween b = new HTween().target(r).property(H.ALPHA).start(0).end(255).ease(0.01).unregister();
+		// b.callback(
+		// 		new HCallback() {
+		// 					public void run(Object obj) {
+		// 						println("hello");
+		// 						hlw.lightweightRemove(r);
+		// 					}
+		// 				}
+		// 	);
+		hlw.lightweightAdd(r, duration);
 }
 
 void draw() {
 	if (frameCount % 1 == 0) {
-		for (int i = 0; i < 10; i++)
+		for (int i = 0; i < 50; i++)
 			generateTempRect((int)random(width), (int)random(height));
 	}
+
+	println();
+	// println(hlw.numChildren());
 
 	H.drawStage();
 
