@@ -8,7 +8,7 @@ public class BlueCellGrid extends HDrawable {
 	color _startColor = #54C9F4;
 	color _endColor = #A6E2FC;
 
-	PCHLightweightCanvas _hlw;
+	PCHLightweightCanvas _lwc;
 
 	// Constructors
 
@@ -56,6 +56,13 @@ public class BlueCellGrid extends HDrawable {
 		return (heightOfGridRow()+_gridGap)*numberOfGridRows() - _gridGap;
 	}
 
+	PVector gridOffset() {
+		int gridOffsetX = (int)(_width-totalWidthOfGridSpan())/2;
+		int gridOffsetY = (int)(_height-totalHeightOfGridSpan())/2;
+
+		return new PVector(gridOffsetX, gridOffsetY);
+	}
+
 	PVector pointCoordinatesForGridAndCellCoordinates(int gridColumn, int gridRow, int cellColumn, int cellRow) {
 		float offsetX = gridColumn * (widthOfGridColumn() + _gridGap) + cellColumn * (_cellSize+_cellGap);
 		float offsetY = gridRow * (heightOfGridRow() + _gridGap) + cellRow * (_cellSize+_cellGap);
@@ -66,6 +73,8 @@ public class BlueCellGrid extends HDrawable {
 	// Rendering subroutines
 
 	void renderCellGrid() {
+		PVector gridOffset = gridOffset();
+
 		for (int currentGridColumn = 0; currentGridColumn < numberOfGridColumns(); currentGridColumn++) {
 			for (int currentGridRow = 0; currentGridRow < numberOfGridRows(); currentGridRow++) {
 				for (int currentCellColumn = 0; currentCellColumn < _numberOfCellsPerGridSide; currentCellColumn++) {
@@ -76,11 +85,17 @@ public class BlueCellGrid extends HDrawable {
 								.noStroke()
 								.alpha(100);
 
-						float offsetX = currentGridColumn * (widthOfGridColumn() + _gridGap) + currentCellColumn * (_cellSize+_cellGap);
-						float offsetY = currentGridRow * (heightOfGridRow() + _gridGap) + currentCellRow * (_cellSize+_cellGap);
+						float offsetX =
+								currentGridColumn * (widthOfGridColumn() + _gridGap)
+							+ 	currentCellColumn * (_cellSize+_cellGap)
+							+	gridOffset.x;
+						float offsetY =
+								currentGridRow * (heightOfGridRow() + _gridGap)
+							+ 	currentCellRow * (_cellSize+_cellGap)
+							+	gridOffset.y;
 
 						cellRect.loc(offsetX, offsetY);
-						_hlw.lightweightAdd(cellRect);
+						_lwc.lightweightAdd(cellRect);
 					}
 				}
 			}
@@ -213,10 +228,13 @@ public class BlueCellGrid extends HDrawable {
 	public void render() {
 		println("rendering");
 
-		if (_hlw != null) _hlw.popOut();
-		_hlw = new PCHLightweightCanvas();
-		_hlw.canvasAdditionRateLimit(100);
-		add(_hlw);
+		if (_lwc != null) _lwc.popOut();
+		_lwc = new PCHLightweightCanvas();
+		_lwc
+			.canvasAdditionRateLimit(100)
+			.size(_width, _height)
+			;
+		add(_lwc);
 
 		// draw background color gradient
 		PCHLinearGradient backgroundGrad = new PCHLinearGradient(_startColor, _endColor);
@@ -224,11 +242,9 @@ public class BlueCellGrid extends HDrawable {
 			.axis(PCHLinearGradient.YAXIS)
 			.size(_width, _height)
 			;
-		_hlw.lightweightAdd(backgroundGrad);
+		_lwc.lightweightAdd(backgroundGrad);
 
 		// draw cell grid
-		int gridOffsetX = (int)(_width-totalWidthOfGridSpan())/2;
-		int gridOffsetY = (int)(_height-totalHeightOfGridSpan())/2;
 		renderCellGrid();
 
 		// renderTopGradients(g, usesZ, drawX+gridOffsetX, drawY+(int)gridOffsetY, currAlphaPc);
