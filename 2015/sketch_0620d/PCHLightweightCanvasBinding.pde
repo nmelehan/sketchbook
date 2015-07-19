@@ -9,6 +9,14 @@ public class PCHLightweightCanvasBinding {
 
 	// Constructors
 
+	public PCHLightweightCanvasBinding(HDrawable drawable) {
+		this(drawable, null, 1);
+	}
+
+	public PCHLightweightCanvasBinding(HDrawable drawable, int numberOfCycles) {
+		this(drawable, null, numberOfCycles);
+	}
+
 	public PCHLightweightCanvasBinding(HDrawable drawable, HBehavior behavior, int numberOfCycles) {
 		_drawable = drawable;
 		_behavior = behavior;
@@ -25,6 +33,10 @@ public class PCHLightweightCanvasBinding {
 
 	public HBehavior behavior() {
 		return _behavior;
+	}
+
+	public void behavior(HBehavior behavior) {
+		_behavior = behavior;
 	}
 
 	public int cycle() {

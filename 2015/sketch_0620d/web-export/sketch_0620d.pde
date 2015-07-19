@@ -1,44 +1,96 @@
 BlueCellGrid blueCellGrid;
 PCHLazyDrawable lazyBlueCellGrid;
 
+int copyIndex = 1;
+
+PCHLightweightCanvas hlw;
+
+int dIndex = 0;
+
 void setup() {
 	size(800, 800);
 	H.init(this).background(#FFFFFF);
 
-	blueCellGrid = new BlueCellGrid();
-	blueCellGrid.size(800, 800).alpha(255);
-	lazyBlueCellGrid = new PCHLazyDrawable(blueCellGrid);
-	H.add(lazyBlueCellGrid);
+	// blueCellGrid = new BlueCellGrid();
+	// blueCellGrid.size(100, height).alpha(255);
+	// lazyBlueCellGrid = new PCHLazyDrawable(blueCellGrid);
+	// H.add(lazyBlueCellGrid);
 
-	// new HRotate().target(lazyBlueCellGrid).speed(1);
+	hlw = new PCHLightweightCanvas();
+	hlw
+		.canvasAdditionRateLimit(1)
+		.autoClear(false)
+		.fade(10);
+	H.add(hlw);
+}
+
+void generateTempRect(int x, int y) {
+		int rectSize = 10;
+		final HRect r = new HRect(rectSize, rectSize);
+		r
+			.loc((rectSize+10)*(dIndex%(width/rectSize)), (rectSize+10)*(dIndex/(width/rectSize)))
+			.fill(0)
+			.stroke(20)
+			.alpha(0)
+			;
+		r.num("index", dIndex);
+		dIndex++;
+		// HOscillator b = new HOscillator()
+		// 	.target(r)
+		// 	.property(H.ALPHA)
+		// 	.range(10, 20)
+		// 	.speed(1)
+		// 	.freq(4)
+		// 	.unregister();
+		// ;
+		int duration = 200;
+
+		final PCHLightweightCanvasBinding binding = new PCHLightweightCanvasBinding(r, 1);
+		binding.delayCycleCountDown(true);
+
+		HTween b = new HTween().target(r).property(H.ALPHA).start(0).end(255).ease(0.05).unregister();
+		b.callback(
+				new HCallback() {
+						public void run(Object obj) {
+							binding.delayCycleCountDown(false);
+						}
+					}
+			);
+
+		binding.behavior(b);
+
+		hlw.lightweightAdd(binding);
 }
 
 void draw() {
-	H.drawStage();
-
-	if (frameCount % 200 == 0) {
-		lazyBlueCellGrid.needsRender(true);
+	if (frameCount % 1 == 0) {
+		for (int i = 0; i < 20; i++)
+			generateTempRect((int)random(width), (int)random(height));
 	}
+
+	H.drawStage();
 }
 
-// void keyPressed() {
-// 	if (key == 'p') {
-// 		saveFrame();
-// 	}
-// 	if (key == 'c') {
-// 		for (HDrawable child : markerGroup) {
-// 			markerGroup.remove(child);
-// 		}
-// 	}
-// 	if (key == 'g') {
-// 		// markerGroup.add(darkMarkSeries());
-// 	}
-// 	if (key == 's') {
-// 		// for (int i = 0; i < 10+random(10); i++) {
-// 		// 	markerGroup.add(darkMarkSeries());
-// 		// }
-// 	}
-// }
+void mouseClicked() {
+	generateTempRect(mouseX, mouseY);
+}
+
+void keyPressed() {
+	if (key == 'p') {
+		saveFrame();
+	}
+	if (key == 'g') {
+		lazyBlueCellGrid.needsRender(true);
+	}
+	if (key == 'c') {
+		PCHLazyDrawable lazyBlueCellGridCopy = lazyBlueCellGrid.createCopy();
+		lazyBlueCellGridCopy
+			.loc(copyIndex*100, 0);
+		H.add(lazyBlueCellGridCopy);
+
+		copyIndex++;
+	}
+}
 
 
 
@@ -238,7 +290,8 @@ public class BlueCellGrid extends HDrawable {
 	}
 
 	public void renderAccentMarks(PGraphics g, boolean usesZ, float drawX, float drawY, float currAlphaPc) {
-		 for (int i = 0; i < 10+random(10); i++) {
+		int baseNumberOfSeries = (int)(_width*_height/64000)*2;
+		for (int i = 0; i < baseNumberOfSeries+random(baseNumberOfSeries); i++) {
 			renderAccentMarkSeriesPair(g, usesZ, drawX, drawY, currAlphaPc);
 		}
 	}
@@ -5502,7 +5555,7 @@ public void drawHandles(PGraphics g, HVertex prev,float drawX,float drawY) {
 }
 import java.util.*;
 
-public static class PCHLazyDrawable extends HDrawable {
+public class PCHLazyDrawable extends HDrawable {
 
 	// Properties
 
@@ -5541,6 +5594,12 @@ public static class PCHLazyDrawable extends HDrawable {
 
 	public PGraphics graphics() {
 		return _graphics;
+	}
+
+	public PCHLazyDrawable graphics(PGraphics graphics) {
+		_graphics = graphics;
+
+		return this;
 	}
 
 	public HDrawable drawable() {
@@ -5597,8 +5656,14 @@ public static class PCHLazyDrawable extends HDrawable {
 	// Subclass methods
 
 	public PCHLazyDrawable createCopy() {
+		PGraphics graphicsCopy = createGraphics(_graphics.width, _graphics.height, _renderer);
+		graphicsCopy.loadPixels();
+		arrayCopy(_graphics.pixels, graphicsCopy.pixels);
+		graphicsCopy.updatePixels();
+
 		PCHLazyDrawable copy = new PCHLazyDrawable(_drawable,_renderer);
-		copy._needsRender = _needsRender;
+		copy.graphics(graphicsCopy);
+		copy.needsRender(_needsRender);
 		copy.copyPropertiesFrom(this);
 		return copy;
 	}
@@ -5615,6 +5680,200 @@ public static class PCHLazyDrawable extends HDrawable {
 		g.image(_graphics,0,0);
 
 		needsRender(false);
+	}
+}
+public class PCHLightweightCanvas extends HCanvas {
+
+	// Properties
+
+	private ArrayList<PCHLightweightCanvasBinding> _lightweightChildrenAdditionQueue;
+	private ArrayList<PCHLightweightCanvasBinding> _lightweightChildrenSubtractionQueue;
+	private ArrayList<PCHLightweightCanvasBinding> _lightweightChildren;
+
+	int _canvasAdditionRateLimit;
+
+	// Constructors
+
+	public void init() {
+		_lightweightChildrenAdditionQueue = new ArrayList<PCHLightweightCanvasBinding>();
+		_lightweightChildrenSubtractionQueue = new ArrayList<PCHLightweightCanvasBinding>();
+		_lightweightChildren = new ArrayList<PCHLightweightCanvasBinding>();
+
+		_canvasAdditionRateLimit = 0;
+
+		super.autoClear(false);
+	}
+
+	public PCHLightweightCanvas() {
+		super();
+
+		init();
+	}
+	public PCHLightweightCanvas(String bufferRenderer) {
+		super(bufferRenderer);
+
+		init();
+	}
+	public PCHLightweightCanvas(float w, float h) {
+		super(w, h);
+
+		init();
+	}
+	public PCHLightweightCanvas(float w, float h, String bufferRenderer) {
+		super(w, h, bufferRenderer);
+
+		init();
+	}
+
+	// Synthesizers
+
+	int canvasAdditionRateLimit() {
+		return _canvasAdditionRateLimit;
+	}
+
+	PCHLightweightCanvas canvasAdditionRateLimit(int canvasAdditionRateLimit) {
+		_canvasAdditionRateLimit = canvasAdditionRateLimit;
+
+		return this;
+	}
+
+	// Class methods
+
+	public PCHLightweightCanvas lightweightAdd(final HDrawable d) {
+		return lightweightAdd(d, 1, null);
+	}
+
+	public PCHLightweightCanvas lightweightAdd(final HDrawable d, final int duration) {
+		return lightweightAdd(d, duration, null);
+	}
+
+	public PCHLightweightCanvas lightweightAdd(final HDrawable d, final int duration, final HBehavior b) {
+		return lightweightAdd(new PCHLightweightCanvasBinding(d, b, duration));
+	}
+
+	public PCHLightweightCanvas lightweightAdd(PCHLightweightCanvasBinding binding) {
+		_lightweightChildrenAdditionQueue.add(binding);
+
+		return this;
+	}
+
+	private void popOffLightweightChildrenAdditionQueue() {
+		PCHLightweightCanvasBinding lightweightChild = _lightweightChildrenAdditionQueue.remove(0);
+
+		_lightweightChildren.add(lightweightChild);
+		add(lightweightChild.drawable());
+		HBehavior b = lightweightChild.behavior();
+		if (b != null) b.register();
+	}
+
+	private void popOffLightweightChildrenSubtractionQueue() {
+		PCHLightweightCanvasBinding lightweightChild = _lightweightChildrenSubtractionQueue.remove(0);
+
+		_lightweightChildren.remove(lightweightChild);
+		remove(lightweightChild.drawable());
+		HBehavior b = lightweightChild.behavior();
+		if (b != null) b.unregister();
+	}
+
+	// Subclass methods
+
+	public PCHLightweightCanvas createCopy() {
+		PCHLightweightCanvas copy = new PCHLightweightCanvas(_width, _height, renderer());
+		copy._canvasAdditionRateLimit = _canvasAdditionRateLimit;
+		copy.copyPropertiesFrom(this);
+		return copy;
+	}
+
+	public void paintAll(PGraphics g, boolean zFlag, float alphaPc) {
+		// add drawables
+		int numberOfAdditions = _canvasAdditionRateLimit == 0
+			? _lightweightChildrenAdditionQueue.size()
+			: min(_lightweightChildrenAdditionQueue.size(), _canvasAdditionRateLimit);
+
+		for (int i = 0; i < numberOfAdditions; i++) {
+			popOffLightweightChildrenAdditionQueue();
+		}
+
+		super.paintAll(g, zFlag, alphaPc);
+
+		// remove drawables
+		for (PCHLightweightCanvasBinding lightweightChild : _lightweightChildren) {
+			int cycle = lightweightChild.countDown();
+			if (cycle < 1) {
+				_lightweightChildrenSubtractionQueue.add(lightweightChild);
+			}
+		}
+
+		while (_lightweightChildrenSubtractionQueue.size() > 0) {
+			popOffLightweightChildrenSubtractionQueue();
+		}
+	}
+}
+public class PCHLightweightCanvasBinding {
+
+	// Properties
+
+	private HDrawable _drawable;
+	private HBehavior _behavior;
+	private int _cycle;
+	private boolean _delayCycleCountDown;
+
+	// Constructors
+
+	public PCHLightweightCanvasBinding(HDrawable drawable) {
+		this(drawable, null, 1);
+	}
+
+	public PCHLightweightCanvasBinding(HDrawable drawable, int numberOfCycles) {
+		this(drawable, null, numberOfCycles);
+	}
+
+	public PCHLightweightCanvasBinding(HDrawable drawable, HBehavior behavior, int numberOfCycles) {
+		_drawable = drawable;
+		_behavior = behavior;
+		_cycle = numberOfCycles;
+
+		_delayCycleCountDown = false;
+	}
+
+	// Synthesizers
+
+	public HDrawable drawable() {
+		return _drawable;
+	}
+
+	public HBehavior behavior() {
+		return _behavior;
+	}
+
+	public void behavior(HBehavior behavior) {
+		_behavior = behavior;
+	}
+
+	public int cycle() {
+		return _cycle;
+	}
+
+	public void cycle(int cycle) {
+		_cycle = cycle;
+	}
+
+	public boolean delayCycleCountDown() {
+		return _delayCycleCountDown;
+	}
+
+	public void delayCycleCountDown(boolean delayCycleCountDown) {
+		_delayCycleCountDown = delayCycleCountDown;
+	}
+
+	// Class methods
+
+	public int countDown() {
+		if(!_delayCycleCountDown) {
+			_cycle--;
+		}
+
+		return _cycle;
 	}
 }
 public class PCHLinearGradient extends HDrawable {
