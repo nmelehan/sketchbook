@@ -8,18 +8,6 @@ public class BlueCellGrid extends HDrawable {
 	color _startColor = #54C9F4;
 	color _endColor = #A6E2FC;
 
-	PCHLightweightCanvas _hlw;
-
-	// Constructors
-
-	public BlueCellGrid() {
-		render();
-	}
-
-	public BlueCellGrid(int w, int h) {
-		size(w, h);
-	}
-
 	// Class methods
 	//
 	//
@@ -65,26 +53,28 @@ public class BlueCellGrid extends HDrawable {
 
 	// Rendering subroutines
 
-	void renderCellGrid() {
+	void renderCellGrid(PGraphics g, boolean usesZ, float drawX, float drawY, float currAlphaPc) {
+
+		HRect cellRect = new HRect(_cellSize, _cellSize);
+		cellRect
+				.fill(255)
+				.noStroke()
+				.alpha(100);
+
 		for (int currentGridColumn = 0; currentGridColumn < numberOfGridColumns(); currentGridColumn++) {
 			for (int currentGridRow = 0; currentGridRow < numberOfGridRows(); currentGridRow++) {
 				for (int currentCellColumn = 0; currentCellColumn < _numberOfCellsPerGridSide; currentCellColumn++) {
 					for (int currentCellRow = 0; currentCellRow < _numberOfCellsPerGridSide; currentCellRow++) {
-						HRect cellRect = new HRect(_cellSize, _cellSize);
-						cellRect
-								.fill(255)
-								.noStroke()
-								.alpha(100);
-
 						float offsetX = currentGridColumn * (widthOfGridColumn() + _gridGap) + currentCellColumn * (_cellSize+_cellGap);
 						float offsetY = currentGridRow * (heightOfGridRow() + _gridGap) + currentCellRow * (_cellSize+_cellGap);
 
-						cellRect.loc(offsetX, offsetY);
-						_hlw.lightweightAdd(cellRect);
+						cellRect.loc(drawX + offsetX, drawY + offsetY);
+						cellRect.paintAll(g, usesZ, currAlphaPc);
 					}
 				}
 			}
 		}
+
 	} // end -- renderCellGrid()
 
 	void renderTopGradients(PGraphics g, boolean usesZ, float drawX, float drawY, float currAlphaPc) {
@@ -210,32 +200,6 @@ public class BlueCellGrid extends HDrawable {
 		}
 	}
 
-	public void render() {
-		println("rendering");
-
-		if (_hlw != null) _hlw.popOut();
-		_hlw = new PCHLightweightCanvas();
-		_hlw.canvasAdditionRateLimit(100);
-		add(_hlw);
-
-		// draw background color gradient
-		PCHLinearGradient backgroundGrad = new PCHLinearGradient(_startColor, _endColor);
-		backgroundGrad
-			.axis(PCHLinearGradient.YAXIS)
-			.size(_width, _height)
-			;
-		_hlw.lightweightAdd(backgroundGrad);
-
-		// draw cell grid
-		int gridOffsetX = (int)(_width-totalWidthOfGridSpan())/2;
-		int gridOffsetY = (int)(_height-totalHeightOfGridSpan())/2;
-		renderCellGrid();
-
-		// renderTopGradients(g, usesZ, drawX+gridOffsetX, drawY+(int)gridOffsetY, currAlphaPc);
-
-		// renderAccentMarks(g, usesZ, drawX+gridOffsetX, drawY+gridOffsetY, currAlphaPc);
-	} // end -- render()
-
 	// Subclass methods
 	//
 	//
@@ -246,12 +210,25 @@ public class BlueCellGrid extends HDrawable {
 		return copy;
 	}
 
-	protected void onResize(float oldW, float oldH, float newW, float newH) {
-		super.onResize(oldW, oldH, newW, newH);
+	public void draw(PGraphics g, boolean usesZ, float drawX, float drawY, float currAlphaPc) {
 
-		render();
-	}
+		// draw background color gradient
+		PCHLinearGradient backgroundGrad = new PCHLinearGradient(_startColor, _endColor);
+		backgroundGrad
+			.axis(PCHLinearGradient.YAXIS)
+			.size(_width, _height)
+			;
+		backgroundGrad.paintAll(g, usesZ, currAlphaPc);
 
-	public void draw( PGraphics g, boolean usesZ, float drawX, float drawY, float currAlphaPc ) { }
+		// draw cell grid
+		int gridOffsetX = (int)(_width-totalWidthOfGridSpan())/2;
+		int gridOffsetY = (int)(_height-totalHeightOfGridSpan())/2;
+		renderCellGrid(g, usesZ, drawX+gridOffsetX, drawY+(int)gridOffsetY, currAlphaPc);
+
+		renderTopGradients(g, usesZ, drawX+gridOffsetX, drawY+(int)gridOffsetY, currAlphaPc);
+
+		renderAccentMarks(g, usesZ, drawX+gridOffsetX, drawY+gridOffsetY, currAlphaPc);
+
+	} // end -- draw()
 
 } // end -- class BlueCellGrid
