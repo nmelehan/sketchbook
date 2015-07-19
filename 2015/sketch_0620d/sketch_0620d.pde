@@ -9,11 +9,14 @@ void setup() {
 }
 
 void draw() {
+	bcg.render();
+
 	H.drawStage();
 }
 
 void mouseClicked() {
 	H.clearStage();
+	bcg.init();
 }
 
 void keyPressed() {

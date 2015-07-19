@@ -119,6 +119,15 @@ public class PCHLightweightCanvas extends HCanvas {
 
 	// Synthesizers
 
+	// public PGraphics graphicsCopy() {
+	// 	PGraphics graphicsCopy = createGraphics(_graphics.width, _graphics.height, _renderer);
+	// 	graphicsCopy.loadPixels();
+	// 	arrayCopy(_graphics.pixels, graphicsCopy.pixels);
+	// 	graphicsCopy.updatePixels();
+
+	// 	return graphicsCopy;
+	// }
+
 	int canvasAdditionRateLimit() {
 		return _canvasAdditionRateLimit;
 	}
@@ -163,6 +172,10 @@ public class PCHLightweightCanvas extends HCanvas {
 		_lightweightChildren.remove(lightweightChild);
 		remove(lightweightChild.drawable());
 		lightweightChild.unregisterBehaviors();
+	}
+
+	public boolean hasLightweightChildren() {
+		return (_lightweightChildren.size() > 0 || _lightweightChildrenAdditionQueue.size() > 0);
 	}
 
 	// Subclass methods
