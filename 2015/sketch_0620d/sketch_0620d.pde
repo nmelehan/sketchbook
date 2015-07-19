@@ -28,39 +28,30 @@ void generateTempRect(int x, int y) {
 		int rectSize = 10;
 		final HRect r = new HRect(rectSize, rectSize);
 		r
-			.loc((rectSize+10)*(dIndex%(width/rectSize)), (rectSize+10)*(dIndex/(width/rectSize)))
+			.loc((rectSize)*(dIndex%(width/rectSize)), (rectSize)*(dIndex/(width/rectSize)))
 			.fill(0)
 			.stroke(20)
 			.alpha(0)
 			;
 		r.num("index", dIndex);
 		dIndex++;
-		// HOscillator b = new HOscillator()
-		// 	.target(r)
-		// 	.property(H.ALPHA)
-		// 	.range(10, 20)
-		// 	.speed(1)
-		// 	.freq(4)
-		// 	.unregister();
-		// ;
+		HOscillator b1 = new HOscillator()
+			.target(r)
+			.property(H.SIZE)
+			.range(5, 10)
+			.speed(1)
+			.freq(4)
+			.unregister();
+		;
 		int duration = 200;
 
-		final PCHLightweightCanvasBinding binding = new PCHLightweightCanvasBinding(r);
-		binding.delayCycleCountDown(true);
+		HTween b2 = new HTween().target(r).property(H.ALPHA).start(0).end(255).ease(0.01).unregister();
 
-		HTween b = new HTween().target(r).property(H.ALPHA).start(0).end(255).ease(0.1).unregister();
-		b.callback(
-				new HCallback() {
-						public void run(Object obj) {
-							println(binding.drawable().num("index"));
-							binding.delayCycleCountDown(false);
-						}
-					}
-			);
+		ArrayList<HBehavior> behaviors = new ArrayList<HBehavior>();
+		behaviors.add(b1);
+		behaviors.add(b2);
 
-		binding.behavior(b);
-
-		hlw.lightweightAdd(binding);
+		hlw.lightweightAdd(r, duration, behaviors);
 }
 
 void draw() {
