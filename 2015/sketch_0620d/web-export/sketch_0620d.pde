@@ -1,94 +1,24 @@
-BlueCellGrid blueCellGrid;
-PCHLazyDrawable lazyBlueCellGrid;
-
-int copyIndex = 1;
-
-PCHLightweightCanvas hlw;
-
-int dIndex = 0;
+BlueCellGrid bcg;
 
 void setup() {
 	size(800, 800);
 	H.init(this).background(#FFFFFF);
 
-	// blueCellGrid = new BlueCellGrid();
-	// blueCellGrid.size(100, height).alpha(255);
-	// lazyBlueCellGrid = new PCHLazyDrawable(blueCellGrid);
-	// H.add(lazyBlueCellGrid);
-
-	hlw = new PCHLightweightCanvas();
-	hlw
-		.canvasAdditionRateLimit(1)
-		.autoClear(false)
-		.fade(10);
-	H.add(hlw);
-}
-
-void generateTempRect(int x, int y) {
-		int rectSize = 10;
-		final HRect r = new HRect(rectSize, rectSize);
-		r
-			.loc((rectSize+10)*(dIndex%(width/rectSize)), (rectSize+10)*(dIndex/(width/rectSize)))
-			.fill(0)
-			.stroke(20)
-			.alpha(0)
-			;
-		r.num("index", dIndex);
-		dIndex++;
-		// HOscillator b = new HOscillator()
-		// 	.target(r)
-		// 	.property(H.ALPHA)
-		// 	.range(10, 20)
-		// 	.speed(1)
-		// 	.freq(4)
-		// 	.unregister();
-		// ;
-		int duration = 200;
-
-		final PCHLightweightCanvasBinding binding = new PCHLightweightCanvasBinding(r, 1);
-		binding.delayCycleCountDown(true);
-
-		HTween b = new HTween().target(r).property(H.ALPHA).start(0).end(255).ease(0.05).unregister();
-		b.callback(
-				new HCallback() {
-						public void run(Object obj) {
-							binding.delayCycleCountDown(false);
-						}
-					}
-			);
-
-		binding.behavior(b);
-
-		hlw.lightweightAdd(binding);
+	bcg = new BlueCellGrid(width, height);
+	H.add(bcg);
 }
 
 void draw() {
-	if (frameCount % 1 == 0) {
-		for (int i = 0; i < 20; i++)
-			generateTempRect((int)random(width), (int)random(height));
-	}
-
 	H.drawStage();
 }
 
 void mouseClicked() {
-	generateTempRect(mouseX, mouseY);
+	H.clearStage();
 }
 
 void keyPressed() {
 	if (key == 'p') {
 		saveFrame();
-	}
-	if (key == 'g') {
-		lazyBlueCellGrid.needsRender(true);
-	}
-	if (key == 'c') {
-		PCHLazyDrawable lazyBlueCellGridCopy = lazyBlueCellGrid.createCopy();
-		lazyBlueCellGridCopy
-			.loc(copyIndex*100, 0);
-		H.add(lazyBlueCellGridCopy);
-
-		copyIndex++;
 	}
 }
 
@@ -103,6 +33,18 @@ public class BlueCellGrid extends HDrawable {
 
 	color _startColor = #54C9F4;
 	color _endColor = #A6E2FC;
+
+	PCHLightweightCanvas _hlw;
+
+	// Constructors
+
+	public BlueCellGrid() {
+		render();
+	}
+
+	public BlueCellGrid(int w, int h) {
+		size(w, h);
+	}
 
 	// Class methods
 	//
@@ -149,28 +91,26 @@ public class BlueCellGrid extends HDrawable {
 
 	// Rendering subroutines
 
-	void renderCellGrid(PGraphics g, boolean usesZ, float drawX, float drawY, float currAlphaPc) {
-
-		HRect cellRect = new HRect(_cellSize, _cellSize);
-		cellRect
-				.fill(255)
-				.noStroke()
-				.alpha(100);
-
+	void renderCellGrid() {
 		for (int currentGridColumn = 0; currentGridColumn < numberOfGridColumns(); currentGridColumn++) {
 			for (int currentGridRow = 0; currentGridRow < numberOfGridRows(); currentGridRow++) {
 				for (int currentCellColumn = 0; currentCellColumn < _numberOfCellsPerGridSide; currentCellColumn++) {
 					for (int currentCellRow = 0; currentCellRow < _numberOfCellsPerGridSide; currentCellRow++) {
+						HRect cellRect = new HRect(_cellSize, _cellSize);
+						cellRect
+								.fill(255)
+								.noStroke()
+								.alpha(100);
+
 						float offsetX = currentGridColumn * (widthOfGridColumn() + _gridGap) + currentCellColumn * (_cellSize+_cellGap);
 						float offsetY = currentGridRow * (heightOfGridRow() + _gridGap) + currentCellRow * (_cellSize+_cellGap);
 
-						cellRect.loc(drawX + offsetX, drawY + offsetY);
-						cellRect.paintAll(g, usesZ, currAlphaPc);
+						cellRect.loc(offsetX, offsetY);
+						_hlw.lightweightAdd(cellRect);
 					}
 				}
 			}
 		}
-
 	} // end -- renderCellGrid()
 
 	void renderTopGradients(PGraphics g, boolean usesZ, float drawX, float drawY, float currAlphaPc) {
@@ -296,6 +236,32 @@ public class BlueCellGrid extends HDrawable {
 		}
 	}
 
+	public void render() {
+		println("rendering");
+
+		if (_hlw != null) _hlw.popOut();
+		_hlw = new PCHLightweightCanvas();
+		_hlw.canvasAdditionRateLimit(100);
+		add(_hlw);
+
+		// draw background color gradient
+		PCHLinearGradient backgroundGrad = new PCHLinearGradient(_startColor, _endColor);
+		backgroundGrad
+			.axis(PCHLinearGradient.YAXIS)
+			.size(_width, _height)
+			;
+		_hlw.lightweightAdd(backgroundGrad);
+
+		// draw cell grid
+		int gridOffsetX = (int)(_width-totalWidthOfGridSpan())/2;
+		int gridOffsetY = (int)(_height-totalHeightOfGridSpan())/2;
+		renderCellGrid();
+
+		// renderTopGradients(g, usesZ, drawX+gridOffsetX, drawY+(int)gridOffsetY, currAlphaPc);
+
+		// renderAccentMarks(g, usesZ, drawX+gridOffsetX, drawY+gridOffsetY, currAlphaPc);
+	} // end -- render()
+
 	// Subclass methods
 	//
 	//
@@ -306,26 +272,13 @@ public class BlueCellGrid extends HDrawable {
 		return copy;
 	}
 
-	public void draw(PGraphics g, boolean usesZ, float drawX, float drawY, float currAlphaPc) {
+	protected void onResize(float oldW, float oldH, float newW, float newH) {
+		super.onResize(oldW, oldH, newW, newH);
 
-		// draw background color gradient
-		PCHLinearGradient backgroundGrad = new PCHLinearGradient(_startColor, _endColor);
-		backgroundGrad
-			.axis(PCHLinearGradient.YAXIS)
-			.size(_width, _height)
-			;
-		backgroundGrad.paintAll(g, usesZ, currAlphaPc);
+		render();
+	}
 
-		// draw cell grid
-		int gridOffsetX = (int)(_width-totalWidthOfGridSpan())/2;
-		int gridOffsetY = (int)(_height-totalHeightOfGridSpan())/2;
-		renderCellGrid(g, usesZ, drawX+gridOffsetX, drawY+(int)gridOffsetY, currAlphaPc);
-
-		renderTopGradients(g, usesZ, drawX+gridOffsetX, drawY+(int)gridOffsetY, currAlphaPc);
-
-		renderAccentMarks(g, usesZ, drawX+gridOffsetX, drawY+gridOffsetY, currAlphaPc);
-
-	} // end -- draw()
+	public void draw( PGraphics g, boolean usesZ, float drawX, float drawY, float currAlphaPc ) { }
 
 } // end -- class BlueCellGrid
 
@@ -5684,20 +5637,96 @@ public class PCHLazyDrawable extends HDrawable {
 }
 public class PCHLightweightCanvas extends HCanvas {
 
+	public class PCHLightweightCanvasChild {
+
+		// Properties
+
+		private HDrawable _drawable;
+		private ArrayList<HBehavior> _behaviors;
+		private int _cycle;
+		private boolean _delayCycleCountDown;
+
+		// Constructors
+
+		public PCHLightweightCanvasChild(HDrawable drawable) {
+			this(drawable, new ArrayList<HBehavior>(), 1);
+		}
+
+		public PCHLightweightCanvasChild(HDrawable drawable, int numberOfCycles) {
+			this(drawable, new ArrayList<HBehavior>(), numberOfCycles);
+		}
+
+		public PCHLightweightCanvasChild(HDrawable drawable, ArrayList<HBehavior> behaviors, int numberOfCycles) {
+			_drawable = drawable;
+			_behaviors = behaviors;
+			_cycle = numberOfCycles;
+
+			_delayCycleCountDown = false;
+		}
+
+		// Synthesizers
+
+		public HDrawable drawable() {
+			return _drawable;
+		}
+
+		public ArrayList<HBehavior> behaviors() {
+			return _behaviors;
+		}
+
+		public int cycle() {
+			return _cycle;
+		}
+
+		public void cycle(int cycle) {
+			_cycle = cycle;
+		}
+
+		public boolean delayCycleCountDown() {
+			return _delayCycleCountDown;
+		}
+
+		public void delayCycleCountDown(boolean delayCycleCountDown) {
+			_delayCycleCountDown = delayCycleCountDown;
+		}
+
+		// Class methods
+
+		public int countDown() {
+			if(!_delayCycleCountDown) {
+				_cycle--;
+			}
+
+			return _cycle;
+		}
+
+		public void registerBehaviors() {
+			for (HBehavior b : _behaviors) {
+				b.register();
+			}
+		}
+
+		public void unregisterBehaviors() {
+			for (HBehavior b : _behaviors) {
+				b.unregister();
+			}
+		}
+	}
+
 	// Properties
 
-	private ArrayList<PCHLightweightCanvasBinding> _lightweightChildrenAdditionQueue;
-	private ArrayList<PCHLightweightCanvasBinding> _lightweightChildrenSubtractionQueue;
-	private ArrayList<PCHLightweightCanvasBinding> _lightweightChildren;
+	private ArrayList<PCHLightweightCanvasChild> _lightweightChildrenAdditionQueue;
+	private ArrayList<PCHLightweightCanvasChild> _lightweightChildrenSubtractionQueue;
+	private ArrayList<PCHLightweightCanvasChild> _lightweightChildren;
 
 	int _canvasAdditionRateLimit;
 
 	// Constructors
 
 	public void init() {
-		_lightweightChildrenAdditionQueue = new ArrayList<PCHLightweightCanvasBinding>();
-		_lightweightChildrenSubtractionQueue = new ArrayList<PCHLightweightCanvasBinding>();
-		_lightweightChildren = new ArrayList<PCHLightweightCanvasBinding>();
+		_lightweightChildrenAdditionQueue = new ArrayList<PCHLightweightCanvasChild>();
+		_lightweightChildrenSubtractionQueue = new ArrayList<PCHLightweightCanvasChild>();
+		_lightweightChildren = new ArrayList<PCHLightweightCanvasChild>();
 
 		_canvasAdditionRateLimit = 0;
 
@@ -5740,39 +5769,37 @@ public class PCHLightweightCanvas extends HCanvas {
 	// Class methods
 
 	public PCHLightweightCanvas lightweightAdd(final HDrawable d) {
-		return lightweightAdd(d, 1, null);
+		_lightweightChildrenAdditionQueue.add(new PCHLightweightCanvasChild(d));
+
+		return this;
 	}
 
 	public PCHLightweightCanvas lightweightAdd(final HDrawable d, final int duration) {
-		return lightweightAdd(d, duration, null);
+		_lightweightChildrenAdditionQueue.add(new PCHLightweightCanvasChild(d, duration));
+
+		return this;
 	}
 
-	public PCHLightweightCanvas lightweightAdd(final HDrawable d, final int duration, final HBehavior b) {
-		return lightweightAdd(new PCHLightweightCanvasBinding(d, b, duration));
-	}
-
-	public PCHLightweightCanvas lightweightAdd(PCHLightweightCanvasBinding binding) {
-		_lightweightChildrenAdditionQueue.add(binding);
+	public PCHLightweightCanvas lightweightAdd(final HDrawable d, final int duration, final ArrayList<HBehavior> b) {
+		_lightweightChildrenAdditionQueue.add(new PCHLightweightCanvasChild(d, b, duration));
 
 		return this;
 	}
 
 	private void popOffLightweightChildrenAdditionQueue() {
-		PCHLightweightCanvasBinding lightweightChild = _lightweightChildrenAdditionQueue.remove(0);
+		PCHLightweightCanvasChild lightweightChild = _lightweightChildrenAdditionQueue.remove(0);
 
 		_lightweightChildren.add(lightweightChild);
 		add(lightweightChild.drawable());
-		HBehavior b = lightweightChild.behavior();
-		if (b != null) b.register();
+		lightweightChild.registerBehaviors();
 	}
 
 	private void popOffLightweightChildrenSubtractionQueue() {
-		PCHLightweightCanvasBinding lightweightChild = _lightweightChildrenSubtractionQueue.remove(0);
+		PCHLightweightCanvasChild lightweightChild = _lightweightChildrenSubtractionQueue.remove(0);
 
 		_lightweightChildren.remove(lightweightChild);
 		remove(lightweightChild.drawable());
-		HBehavior b = lightweightChild.behavior();
-		if (b != null) b.unregister();
+		lightweightChild.unregisterBehaviors();
 	}
 
 	// Subclass methods
@@ -5797,7 +5824,7 @@ public class PCHLightweightCanvas extends HCanvas {
 		super.paintAll(g, zFlag, alphaPc);
 
 		// remove drawables
-		for (PCHLightweightCanvasBinding lightweightChild : _lightweightChildren) {
+		for (PCHLightweightCanvasChild lightweightChild : _lightweightChildren) {
 			int cycle = lightweightChild.countDown();
 			if (cycle < 1) {
 				_lightweightChildrenSubtractionQueue.add(lightweightChild);
@@ -5807,73 +5834,6 @@ public class PCHLightweightCanvas extends HCanvas {
 		while (_lightweightChildrenSubtractionQueue.size() > 0) {
 			popOffLightweightChildrenSubtractionQueue();
 		}
-	}
-}
-public class PCHLightweightCanvasBinding {
-
-	// Properties
-
-	private HDrawable _drawable;
-	private HBehavior _behavior;
-	private int _cycle;
-	private boolean _delayCycleCountDown;
-
-	// Constructors
-
-	public PCHLightweightCanvasBinding(HDrawable drawable) {
-		this(drawable, null, 1);
-	}
-
-	public PCHLightweightCanvasBinding(HDrawable drawable, int numberOfCycles) {
-		this(drawable, null, numberOfCycles);
-	}
-
-	public PCHLightweightCanvasBinding(HDrawable drawable, HBehavior behavior, int numberOfCycles) {
-		_drawable = drawable;
-		_behavior = behavior;
-		_cycle = numberOfCycles;
-
-		_delayCycleCountDown = false;
-	}
-
-	// Synthesizers
-
-	public HDrawable drawable() {
-		return _drawable;
-	}
-
-	public HBehavior behavior() {
-		return _behavior;
-	}
-
-	public void behavior(HBehavior behavior) {
-		_behavior = behavior;
-	}
-
-	public int cycle() {
-		return _cycle;
-	}
-
-	public void cycle(int cycle) {
-		_cycle = cycle;
-	}
-
-	public boolean delayCycleCountDown() {
-		return _delayCycleCountDown;
-	}
-
-	public void delayCycleCountDown(boolean delayCycleCountDown) {
-		_delayCycleCountDown = delayCycleCountDown;
-	}
-
-	// Class methods
-
-	public int countDown() {
-		if(!_delayCycleCountDown) {
-			_cycle--;
-		}
-
-		return _cycle;
 	}
 }
 public class PCHLinearGradient extends HDrawable {

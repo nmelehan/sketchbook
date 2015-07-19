@@ -175,8 +175,6 @@ public class PCHLightweightCanvas extends HCanvas {
 	}
 
 	public void paintAll(PGraphics g, boolean zFlag, float alphaPc) {
-		println("frame: " + frameCount);
-
 		// add drawables
 		int numberOfAdditions = _canvasAdditionRateLimit == 0
 			? _lightweightChildrenAdditionQueue.size()
