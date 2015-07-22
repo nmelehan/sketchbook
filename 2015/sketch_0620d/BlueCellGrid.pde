@@ -50,10 +50,14 @@ public class BlueCellGrid extends HDrawable {
 
 	public BlueCellGrid() {
 		init();
+
+		render();
 	}
 
 	public BlueCellGrid(int w, int h) {
 		size(w, h);
+
+		render();
 	}
 
 	// Synthesizers
@@ -82,12 +86,20 @@ public class BlueCellGrid extends HDrawable {
 		return (_cellSize+_cellGap)*_numberOfCellsPerGridSide - _cellGap + _gridGap;
 	}
 
+	int numberOfGridColumnsForWidth(float aWidth) {
+		return (int)Math.floor((aWidth+_gridGap)/(widthOfGridColumn()+_gridGap));
+	}
+
 	int numberOfGridColumns() {
-		return (int)Math.floor((_width+_gridGap)/(widthOfGridColumn()+_gridGap));
+		return numberOfGridColumnsForWidth(_width);
+	}
+
+	int numberOfGridRowsForHeight(float aHeight) {
+		return (int)Math.floor((aHeight+_gridGap)/(heightOfGridRow()+_gridGap));
 	}
 
 	int numberOfGridRows() {
-		return (int)Math.floor((_height+_gridGap)/(heightOfGridRow()+_gridGap));
+		return numberOfGridRowsForHeight(_height);
 	}
 
 	int totalWidthOfGridSpan() {

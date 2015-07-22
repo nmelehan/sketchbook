@@ -79,10 +79,14 @@ public class BlueCellGrid extends HDrawable {
 
 	public BlueCellGrid() {
 		init();
+
+		render();
 	}
 
 	public BlueCellGrid(int w, int h) {
 		size(w, h);
+
+		render();
 	}
 
 	// Synthesizers
