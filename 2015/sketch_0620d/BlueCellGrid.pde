@@ -14,12 +14,8 @@ public class BlueCellGrid extends HDrawable {
 
 	private boolean _needsRender = true;
 
-	private PGraphics _cellUnitRowReusableBuffer;
-	private boolean _startedRenderingCellUnitRow;
+	private ArrayList<int[]> _undrawnGridCells;
 	private PGraphics _cellUnitReusableBuffer;
-	private boolean _startedRenderingCellUnit;
-	private PGraphics _cellGridRowReusableBuffer;
-	private boolean _startedRenderingCellGridRow;
 
 	// Constructors
 
@@ -40,12 +36,9 @@ public class BlueCellGrid extends HDrawable {
 			_overlayLWC = null;
 
 		_needsRender = true;
-		_cellUnitRowReusableBuffer = null;
-		_startedRenderingCellUnitRow = false;
-		_cellUnitReusableBuffer = null;
-		_startedRenderingCellUnit = false;
-		_cellGridRowReusableBuffer = null;
-		_startedRenderingCellGridRow = false;
+
+		if (_undrawnGridCells == null)
+			_undrawnGridCells = new ArrayList<int[]>();
 	}
 
 	public BlueCellGrid() {
@@ -151,44 +144,39 @@ public class BlueCellGrid extends HDrawable {
 
 		if (_cellGridLWC == null) {
 			_cellGridLWC = new PCHLightweightCanvas(totalWidthOfGridSpan(), totalHeightOfGridSpan())
-				.canvasAdditionRateLimit(numberOfGridColumns());
+				.canvasAdditionRateLimit(25*20);
 			add(_cellGridLWC);
 		}
 
-		if (_cellUnitRowReusableBuffer == null) {
-			if (!_startedRenderingCellUnitRow) {
-				println("here");
-				int currentGridRow = 0;
-				for (int currentCellRow = 0; currentCellRow < _numberOfCellsPerGridSide; currentCellRow++) {
-					for (int currentCellColumn = 0; currentCellColumn < _numberOfCellsPerGridSide; currentCellColumn++) {
-						for (int currentGridColumn = 0; currentGridColumn < numberOfGridColumns(); currentGridColumn++) {
-							println("lightweight add");
-							HRect cellRect = new HRect(_cellSize, _cellSize);
-							cellRect
-									.fill(0)
-									.noStroke()
-									.alpha(100);
+		int currentGridRow;
+		int currentGridColumn;
+		while (_undrawnGridCells.size() > 0) {
+			int cellUnitIndex = (int)random(_undrawnGridCells.size());
+			int[] coordinates = _undrawnGridCells.remove(cellUnitIndex);
+			currentGridColumn = coordinates[0];
+			currentGridRow = coordinates[1];
 
-							float offsetX =
-									currentGridColumn * (widthOfGridColumn() + _gridGap)
-								+ 	currentCellColumn * (_cellSize+_cellGap);
-							float offsetY =
-									currentGridRow * (heightOfGridRow() + _gridGap)
-								+ 	currentCellRow * (_cellSize+_cellGap);
+			for (int currentCellRow = 0; currentCellRow < _numberOfCellsPerGridSide; currentCellRow++) {
+				for (int currentCellColumn = 0; currentCellColumn < _numberOfCellsPerGridSide; currentCellColumn++) {
+					HRect cellRect = new HRect(_cellSize, _cellSize);
+					cellRect
+							.fill(0)
+							.noStroke()
+							.alpha(100);
 
-							cellRect.loc(offsetX, offsetY);
-							_cellGridLWC.lightweightAdd(cellRect);
-						}
-					}
+					float offsetX =
+							currentGridColumn * (widthOfGridColumn() + _gridGap)
+						+ 	currentCellColumn * (_cellSize+_cellGap);
+					float offsetY =
+							currentGridRow * (heightOfGridRow() + _gridGap)
+						+ 	currentCellRow * (_cellSize+_cellGap);
+
+					cellRect.loc(offsetX, offsetY);
+					_cellGridLWC.lightweightAdd(cellRect);
 				}
-
-				_startedRenderingCellUnitRow = true;
-			}
-			else {
-				// if (!_cellGridLWC.hasLightweightChildren())
-				// _cellUnitRowReusableBuffer = _cellGridLWC.graphicsCopy();
 			}
 		}
+		_needsRender = false;
 
 		// for (int currentGridColumn = 0; currentGridColumn < numberOfGridColumns(); currentGridColumn++) {
 		// 	for (int currentGridRow = 0; currentGridRow < numberOfGridRows(); currentGridRow++) {
@@ -351,6 +339,37 @@ public class BlueCellGrid extends HDrawable {
 		// renderAccentMarks(g, usesZ, drawX+gridOffsetX, drawY+gridOffsetY, currAlphaPc);
 	} // end -- render()
 
+	private void populateUndrawnGridCells(float oldW, float oldH, float newW, float newH) {
+		int oldNumberOfGridColumns = numberOfGridColumnsForWidth(oldW);
+		int oldNumberOfGridRows = numberOfGridRowsForHeight(oldH);
+		int newNumberOfGridColumns = numberOfGridColumnsForWidth(newW);
+		int newNumberOfGridRows = numberOfGridRowsForHeight(newH);
+
+		if (newNumberOfGridColumns > oldNumberOfGridColumns) {
+			for (int row = 0; row < oldNumberOfGridRows; row++) {
+				for (int column = oldNumberOfGridColumns; column < newNumberOfGridColumns; column++) {
+					_undrawnGridCells.add(new int[]{column, row});
+				}
+			}
+		}
+
+		if (newNumberOfGridRows > oldNumberOfGridRows) {
+			for (int column = 0; column < oldNumberOfGridColumns; column++) {
+				for (int row = oldNumberOfGridRows; row < newNumberOfGridRows; row++) {
+					_undrawnGridCells.add(new int[]{column, row});
+				}
+			}
+		}
+
+		if (newNumberOfGridColumns > oldNumberOfGridColumns && newNumberOfGridRows > oldNumberOfGridRows) {
+			for (int row = oldNumberOfGridRows; row < newNumberOfGridRows; row++) {
+				for (int column = oldNumberOfGridColumns; column < newNumberOfGridColumns; column++) {
+					_undrawnGridCells.add(new int[]{column, row});
+				}
+			}
+		}
+	}
+
 	// Subclass methods
 	//
 	//
@@ -365,6 +384,9 @@ public class BlueCellGrid extends HDrawable {
 		super.onResize(oldW, oldH, newW, newH);
 
 		init();
+
+		println("onResize, oldW: " + oldW + ", oldH: " + oldH);
+		populateUndrawnGridCells(oldW, oldH, newW, newH);
 	}
 
 	public void draw( PGraphics g, boolean usesZ, float drawX, float drawY, float currAlphaPc ) { }
