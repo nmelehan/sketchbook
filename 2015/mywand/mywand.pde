@@ -23,6 +23,8 @@ int sketchHeight = sketchPadding*2+canvasHeight;
 
 HText frameRateString;
 
+boolean isDrawing;
+
 void setup() {
  size(sketchWidth, sketchHeight); 
  
@@ -35,7 +37,7 @@ void setup() {
  
   frameRateString = new HText(str(frameRate), 48);
   frameRateString.fill(#FFFFFF).anchorAt(H.CENTER).loc(100,100);
-  H.add(frameRateString);
+  //H.add(frameRateString);
  
   smooth();
   cp5 = new ControlP5(this);
@@ -46,6 +48,8 @@ void setup() {
      .setSize(controlPanelWidth,controlPanelWidth)
      .setLabelVisible(false)
      ;
+
+	isDrawing = false;	
 }
 
 void drawLayout() {
@@ -67,11 +71,15 @@ float mouseYToCanvasY(float y) {
 void draw() {
   frameRateString.text(str(frameRate));
   
-  if (tablet.isMovement()) {
+  if (tablet.isMovement() && tablet.getPressure() > 0) {
    strokeWeight(3 * tablet.getPressure());
     line(pmouseX, pmouseY, mouseX, mouseY);  
     Stroke stroke = new Stroke(mouseXToCanvasX(tablet.getPenX()), mouseYToCanvasY(tablet.getPenY()), tablet.getPressure());
-    artist.addStroke(stroke);
+    artist.addStroke(stroke, !isDrawing);
+
+    isDrawing = true;
+  } else {
+  	isDrawing = false;
   }
   
   drawLayout();
