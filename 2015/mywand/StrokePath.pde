@@ -1,7 +1,7 @@
-public class StrokeSegment {
+public class StrokePath {
   ArrayList<Stroke> strokes;
   
-  public StrokeSegment() {
+  public StrokePath() {
     this.strokes = new ArrayList<Stroke>();
   } 
 

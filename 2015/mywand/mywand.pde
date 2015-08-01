@@ -37,7 +37,7 @@ void setup() {
  
   frameRateString = new HText(str(frameRate), 48);
   frameRateString.fill(#FFFFFF).anchorAt(H.CENTER).loc(100,100);
-  //H.add(frameRateString);
+  H.add(frameRateString);
  
   smooth();
   cp5 = new ControlP5(this);
@@ -82,6 +82,7 @@ void draw() {
   	isDrawing = false;
   }
   
+  artist.draw();
   drawLayout();
   
   H.drawStage();

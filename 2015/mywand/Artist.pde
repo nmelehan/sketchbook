@@ -1,26 +1,37 @@
-public class Artist {
-  ArrayList<StrokeSegment> history; // the "model"
+public interface CanvasDelegate {
+  public HCanvas canvas();
+}
+
+public class Artist implements CanvasDelegate {
+  ArrayList<StrokePath> history; // the "model"
   
   HCanvas hcanvas; // the "view"
+  Brush _brush;
   HRect mark;
 
-  HPath strokeSegmentFragmentMark;
+  HPath strokePathFragmentMark;
   
   boolean liveUpdate = true;
   
   public Artist() {
-    this.history = new ArrayList<StrokeSegment>();
+    this.history = new ArrayList<StrokePath>();
     
     hcanvas = new HCanvas().autoClear(false);
-    mark = new HRect();
-    mark.visibility(false);
+    // mark = new HRect();
+    // mark.visibility(false);
     H.add(hcanvas);
-    hcanvas.add(mark);
+    // hcanvas.add(mark);
 
-    strokeSegmentFragmentMark = new HPath();
-    strokeSegmentFragmentMark.stroke(255);
-    //strokeSegmentFragmentMark.visibility(false);
-    hcanvas.add(strokeSegmentFragmentMark);
+    _brush = new Brush(this);
+
+    // strokePathFragmentMark = new HPath();
+    // strokePathFragmentMark.stroke(255);
+    // //strokePathFragmentMark.visibility(false);
+    // hcanvas.add(strokePathFragmentMark);
+  }
+
+  public HCanvas canvas() {
+    return hcanvas;
   }
   
   public void clearCanvas() {
@@ -36,22 +47,30 @@ public class Artist {
   }
   
   public void addStroke(Stroke stroke, boolean newSegment) {
-    StrokeSegment currentSegment;
+    StrokePath currentPath;
     if (newSegment) {
-      currentSegment = new StrokeSegment();
-      history.add(currentSegment);
+      currentPath = new StrokePath();
+      history.add(currentPath);
     }
     else {
-      currentSegment = history.get(history.size()-1);
+      currentPath = history.get(history.size()-1);
     }
 
-    currentSegment.add(stroke);
+    currentPath.add(stroke);
     
     if (!newSegment && liveUpdate) {
-      drawSegmentFragment(
-        currentSegment.strokes.get(currentSegment.strokes.size()-2), 
-        currentSegment.strokes.get(currentSegment.strokes.size()-1));
+      // drawSegmentFragment(
+      //   currentPath.strokes.get(currentPath.strokes.size()-2), 
+      //   currentPath.strokes.get(currentPath.strokes.size()-1));
+      StrokePathSegment segment = new StrokePathSegment(
+          currentPath.strokes.get(currentPath.strokes.size()-2),
+          currentPath.strokes.get(currentPath.strokes.size()-1));
+      _brush.queuePathSegment(segment);
     }
+  }
+
+  public void draw() {
+    _brush.draw();
   }
 
   private void drawPoint(Stroke stroke) {
@@ -74,11 +93,11 @@ public class Artist {
   }
   
   private void drawSegmentFragment(Stroke stroke1, Stroke stroke2) {
-    // clear vertices from strokeSegmentFragmentMark
+    // clear vertices from strokePathFragmentMark
 
-    strokeSegmentFragmentMark.clear();
+    strokePathFragmentMark.clear();
 
-    strokeSegmentFragmentMark
+    strokePathFragmentMark
       .vertex(stroke1.location.x, stroke1.location.y)
       .vertex(stroke2.location.x, stroke2.location.y)
       ;
@@ -86,10 +105,10 @@ public class Artist {
   
   public void drawHistory() {
     for (int i = 0; i < history.size(); i++) {
-      StrokeSegment segment = history.get(i);
-      if (segment.strokes.size() > 1) {
-        for (int j = 1; j < segment.strokes.size(); j++) {
-          drawSegmentFragment(segment.strokes.get(i-1), segment.strokes.get(i)); 
+      StrokePath path = history.get(i);
+      if (path.strokes.size() > 1) {
+        for (int j = 1; j < path.strokes.size(); j++) {
+          drawSegmentFragment(path.strokes.get(i-1), path.strokes.get(i)); 
         }     
       } // end if()
       else {
