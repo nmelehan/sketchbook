@@ -66,6 +66,15 @@ public class Artist implements CanvasDelegate {
           currentPath.strokes.get(currentPath.strokes.size()-2),
           currentPath.strokes.get(currentPath.strokes.size()-1));
       _brush.queuePathSegment(segment);
+
+      if (random(1) > .9) {
+        PVector location = new PVector(stroke.location.x+stroke.penPressure*20, stroke.location.y+stroke.penPressure*20);
+        Stroke newStroke = new Stroke(location.x, location.y, stroke.penPressure);
+        segment = new StrokePathSegment(
+          currentPath.strokes.get(currentPath.strokes.size()-1),
+          newStroke);
+        _brush.queuePathSegment(segment);
+      }
     }
   }
 

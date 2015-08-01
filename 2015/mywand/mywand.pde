@@ -69,7 +69,7 @@ float mouseYToCanvasY(float y) {
 }
 
 void draw() {
-  frameRateString.text(str(frameRate));
+  frameRateString.text("p: " + tablet.getPressure());
   
   if (tablet.isMovement() && tablet.getPressure() > 0) {
    strokeWeight(3 * tablet.getPressure());
