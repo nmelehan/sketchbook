@@ -43,3 +43,9 @@ void setup() {
 void draw() {
 	H.drawStage();
 }
+
+void keyPressed() {
+	if (key == 'p') {
+		saveFrame();
+	}
+}
