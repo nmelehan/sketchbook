@@ -36,6 +36,15 @@ void setup() {
 		.size(2, 2*sketchSize/3);
 	middleGradient.add(middleGradientStrokeLeft);
 
+	HEllipse circleAccent = new HEllipse(sketchSize/6, sketchSize/6);
+	circleAccent
+		.loc(middleGradient.width()/2, 5*sketchSize/24)
+		.anchorAt(H.CENTER)
+		.stroke(bisectingLineYellow2)
+		.strokeWeight(2)
+		.noFill();
+	middleGradient.add(circleAccent);
+
 	PCHLinearGradient middleGradientStrokeRight = middleGradientStrokeLeft.createCopy();
 	middleGradient.add(middleGradientStrokeRight).loc(middleGradient.width()-2, 0);
 }
