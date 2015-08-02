@@ -22,18 +22,15 @@ public class BlueCellGrid extends HDrawable {
 	public void init() {
 		if (_backgroundGradientLWC != null)
 			_backgroundGradientLWC.popOut();
-		else
-			_backgroundGradientLWC = null;
+		_backgroundGradientLWC = null;
 
-		if (_cellGridLWC != null)
-			_cellGridLWC.popOut();
-		else
-			_cellGridLWC = null;
+		// if (_cellGridLWC != null)
+		// 	_cellGridLWC.popOut();
+		// _cellGridLWC = null;
 
 		if (_overlayLWC != null)
 			_overlayLWC.popOut();
-		else
-			_overlayLWC = null;
+		_overlayLWC = null;
 
 		_needsRender = true;
 
@@ -385,7 +382,10 @@ public class BlueCellGrid extends HDrawable {
 
 		init();
 
-		println("onResize, oldW: " + oldW + ", oldH: " + oldH);
+		// println("onResize, oldW: " + oldW + ", oldH: " + oldH);
+		if (_cellGridLWC != null) {
+			_cellGridLWC.size(totalWidthOfGridSpan(), totalHeightOfGridSpan());
+		}
 		populateUndrawnGridCells(oldW, oldH, newW, newH);
 	}
 

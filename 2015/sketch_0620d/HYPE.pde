@@ -3563,6 +3563,8 @@ public static class HCanvas extends HDrawable {
 		return copy;
 	}
 	protected void updateBuffer() {
+		println(_graphics);
+
 		int w = Math.round(_width);
 		int h = Math.round(_height);
 		_graphics = H.app().createGraphics(w, h, _renderer);
@@ -3572,6 +3574,8 @@ public static class HCanvas extends HDrawable {
 		_graphics.endDraw();
 		_width = w;
 		_height = h;
+
+		println(_graphics);
 	}
 	public HCanvas renderer(String s) {
 		_renderer = s;
@@ -3704,6 +3708,7 @@ public static class HCanvas extends HDrawable {
 		return this;
 	}
 	public void paintAll(PGraphics g, boolean zFlag, float alphaPc) {
+		// println(_graphics);
 		if(_alphaPc<=0 || _width==0 || _height==0) return;
 		g.pushMatrix();
 		if(zFlag) g.translate(_x,_y,_z);

@@ -187,6 +187,22 @@ public class PCHLightweightCanvas extends HCanvas {
 		return copy;
 	}
 
+	protected void updateBuffer() {
+		PGraphics buffer = super.graphics();
+		if (buffer != null) {
+			PImage bufferCopy = buffer.get(0, 0, (int)_width, (int)_height);
+
+			super.updateBuffer();
+
+			// buffer.loadPixels();
+			// arrayCopy(bufferCopy.pixels, buffer.pixels);
+			// buffer.updatePixels();
+		}
+		else {
+			super.updateBuffer();
+		}
+	}
+
 	public void paintAll(PGraphics g, boolean zFlag, float alphaPc) {
 		// add drawables
 		int numberOfAdditions = _canvasAdditionRateLimit == 0
