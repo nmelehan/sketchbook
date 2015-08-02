@@ -125,6 +125,16 @@ public class Brush {
 		while(_pathSegmentQueue.size() > 0) {
 			StrokePathSegment segment = _pathSegmentQueue.remove(0);
 			generateBrushMarksForPathSegment(segment);
+
+			Stroke dupStroke1 = segment._stroke1.createCopy();
+			dupStroke1.location = new PVector(dupStroke1.location.x + 50, dupStroke1.location.y + 50);
+			
+			Stroke dupStroke2 = segment._stroke2.createCopy();
+			dupStroke2.location = new PVector(dupStroke2.location.x + 50, dupStroke2.location.y + 50);
+
+			StrokePathSegment dupSegment = new StrokePathSegment(dupStroke1, dupStroke2);
+
+			generateBrushMarksForPathSegment(dupSegment);
 		}
 	}
 }

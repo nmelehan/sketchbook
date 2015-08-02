@@ -16,7 +16,7 @@ public class Artist implements CanvasDelegate {
   public Artist() {
     this.history = new ArrayList<StrokePath>();
     
-    hcanvas = new HCanvas().autoClear(false);
+    hcanvas = new HCanvas().autoClear(true);
     // mark = new HRect();
     // mark.visibility(false);
     H.add(hcanvas);
@@ -67,6 +67,9 @@ public class Artist implements CanvasDelegate {
           currentPath.strokes.get(currentPath.strokes.size()-1));
       _brush.queuePathSegment(segment);
       println("queue segment");
+
+      // dup
+
     }
   }
 
