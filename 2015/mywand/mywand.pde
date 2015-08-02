@@ -28,7 +28,7 @@ boolean isDrawing;
 void setup() {
  size(sketchWidth, sketchHeight); 
  
- H.init(this).background(#202020);
+ H.init(this).background(#202020).autoClear(true);
   
  tablet = new Tablet(this); 
  artist = new Artist();
@@ -69,7 +69,7 @@ float mouseYToCanvasY(float y) {
 }
 
 void draw() {
-  frameRateString.text("p: " + tablet.getPressure());
+  frameRateString.text("rate: " + frameRate);
   
   if (tablet.isMovement() && tablet.getPressure() > 0) {
    strokeWeight(3 * tablet.getPressure());
