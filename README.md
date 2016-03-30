@@ -1,6 +1,6 @@
 # sketchbook
 
-sketchbook is a collection of (mostly) Processing.org sketches. The output of these sketches are frequently posted to my Instagram: [instagram.com/popcopy](http://instagram.com/popcopy)
+sketchbook is a collection of (mostly) Processing.org sketches. The output of these sketches are frequently posted to my Instagram: [instagram.com/nmelehan](http://instagram.com/nmelehan)
 
 ![Screenshot 1](https://raw.githubusercontent.com/nmelehan/sketchbook/master/screen-1520.png)
 ![Screenshot 2](https://raw.githubusercontent.com/nmelehan/sketchbook/master/screen-1760.png)
